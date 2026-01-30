@@ -41,7 +41,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Monaco editor language mappings for all Exercism tracks
+// Monaco editor language mappings for all supported tracks
 const languageMap: Record<string, string> = {
   c: "c",
   javascript: "javascript",
@@ -76,7 +76,7 @@ const languageMap: Record<string, string> = {
 };
 
 // Helper to extract code string from starterCode (can be string or object with multiple files)
-// For C/C++ tracks with multiple files (.c, .h), we concatenate with file headers like Exercism
+// For C/C++ tracks with multiple files (.c, .h), we handle them appropriately
 const getStarterCodeString = (
   starterCode: string | Record<string, string> | undefined,
   track?: string
