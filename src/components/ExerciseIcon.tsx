@@ -21,9 +21,9 @@ const iconSizes = {
   lg: 'w-8 h-8',
 };
 
-// Normalize exercise slug to match Exercism CDN naming
+// Normalize exercise slug to match CDN naming
 const normalizeSlug = (slug: string): string => {
-  // Common slug transformations for Exercism CDN
+  // Common slug transformations for CDN
   return slug
     .toLowerCase()
     .replace(/_/g, '-')  // underscores to dashes
@@ -41,7 +41,7 @@ export const ExerciseIcon: React.FC<ExerciseIconProps> = ({
 
   const normalizedSlug = normalizeSlug(slug);
   
-  // Primary: Exercism CDN
+  // Primary: CDN for exercise icons
   const exercismIconUrl = `https://assets.exercism.org/exercises/${normalizedSlug}.svg`;
   // Fallback: Try with original slug
   const fallbackIconUrl = `https://assets.exercism.org/exercises/${slug}.svg`;

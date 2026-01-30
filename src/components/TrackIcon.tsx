@@ -39,7 +39,7 @@ export const TrackIcon: React.FC<TrackIconProps> = ({
     letter: slug?.charAt(0).toUpperCase() || '?' 
   };
 
-  // Try Exercism CDN first, then local fallback
+  // Try CDN first, then local fallback
   const exercismIconUrl = `https://assets.exercism.org/tracks/${slug}.svg`;
 
   if (showImage && !imageError) {
