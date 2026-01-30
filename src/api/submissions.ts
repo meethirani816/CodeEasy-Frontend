@@ -1,7 +1,7 @@
 import apiClient from './apiClient';
 import { Submission, SubmissionResult } from '@/types';
 
-// Judge0 language IDs - All popular Exercism languages
+// Judge0 language IDs - Supported languages
 const LANGUAGE_IDS: Record<string, number> = {
   c: 50,           // C (GCC 9.2.0)
   cpp: 54,         // C++ (GCC 9.2.0)

@@ -12,12 +12,15 @@ export const conceptsApi = {
       const response = await apiClient.get(`/api/tracks/${trackSlug}/concepts/${conceptSlug}`);
       console.log('[Concepts API] Response:', response.data);
       
+      // Handle nested concept object from backend
+      const conceptData = response.data.concept || response.data;
+      
       return {
         track: trackSlug,
         concept: conceptSlug,
-        about: response.data.about || '',
-        introduction: response.data.introduction || '',
-        links: response.data.links || [],
+        about: conceptData.about || '',
+        introduction: conceptData.introduction || '',
+        links: conceptData.links || [],
       };
     } catch (error) {
       console.error('[Concepts API] Error fetching concept:', error);

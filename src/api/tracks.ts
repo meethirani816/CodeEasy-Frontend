@@ -1,7 +1,8 @@
+
 import apiClient from './apiClient';
 import { Track, Category, TrackConfig, ConceptConfig } from '@/types';
 
-// Track name mapping - All popular Exercism languages
+// Track name mapping - Supported languages
 const TRACK_NAMES: Record<string, string> = {
   c: 'C',
   javascript: 'JavaScript',
@@ -215,12 +216,19 @@ export const tracksApi = {
   },
 
   /**
-   * Get concepts list from track config
+   * Get concepts list from track config or concepts API
    */
   getConcepts: async (slug: string): Promise<ConceptConfig[]> => {
     console.log(`[Tracks API] Fetching concepts for: ${slug}`);
     
     try {
+      // Try concepts API first
+      const response = await apiClient.get(`/api/tracks/${slug}/concepts`);
+      // Backend returns { success: true, concepts: [...] }
+      if (response.data.concepts) {
+        return response.data.concepts;
+      }
+      // Fallback to config
       const config = await tracksApi.getTrackConfig(slug);
       return config?.concepts || [];
     } catch (error) {
