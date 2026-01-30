@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -185,7 +186,7 @@ const Tracks: React.FC = () => {
 
           {!isLoading && apiError && (
             <ApiUnavailable
-              error={apiError}
+              description={apiError}
               onRetry={() => window.location.reload()}
             />
           )}
