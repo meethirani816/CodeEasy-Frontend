@@ -228,7 +228,7 @@ const ExerciseDetail: React.FC = () => {
       <section className="flex-1 py-10">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-10">
-            {/* LEFT – Exercism-style Overview */}
+            {/* LEFT – Overview */}
             <div className="lg:col-span-2 space-y-8">
               {/* Introduction */}
               {cleanedDescription?.trim() && (

@@ -444,7 +444,7 @@ const Exercises: React.FC = () => {
                         )}
 
                         <div className="flex items-start gap-4">
-                          {/* Exercise icon - load from Exercism CDN */}
+                          {/* Exercise icon */}
                           <ExerciseIcon 
                             slug={exercise.slug} 
                             trackSlug={slug}

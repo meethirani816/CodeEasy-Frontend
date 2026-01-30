@@ -21,7 +21,7 @@ const Index: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ show 12 tracks like Exercism section (2 rows on large screens)
+  // Show 12 tracks in the hero section (2 rows on large screens)
   const [tracks, setTracks] = useState<Track[]>([]);
   // ✅ total languages count for heading
   const [totalTracks, setTotalTracks] = useState(0);
@@ -32,7 +32,7 @@ const Index: React.FC = () => {
         const data = await tracksApi.getAllTracks();
 
         setTotalTracks(data.length);
-        setTracks(data.slice(0, 12)); // ✅ show 12 like Exercism
+        setTracks(data.slice(0, 12)); // Show first 12 tracks
       } catch (err) {
         console.error("Failed to load tracks:", err);
         setTracks([]);
@@ -47,7 +47,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Hero Section - Exercism Style with Purple Gradient */}
+      {/* Hero Section with Purple Gradient */}
       <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5" />
         <div className="absolute inset-0 header-pattern opacity-50" />
@@ -154,12 +154,12 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ✅ Languages Section - MATCH EXERCISM STYLE */}
+      {/* Languages Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         {/* background */}
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/20" />
 
-        {/* decorative shapes (like Exercism) */}
+        {/* decorative shapes */}
         <div className="absolute left-10 top-24 h-7 w-7 rotate-45 border-2 border-primary/30 hidden md:block" />
         <div className="absolute right-14 top-28 h-7 w-7 rounded-sm border-2 border-yellow-400/70 hidden md:block" />
         <div className="absolute left-24 top-44 h-2 w-7 rotate-45 bg-primary/30 rounded-full hidden md:block" />
