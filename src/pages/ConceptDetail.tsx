@@ -102,10 +102,10 @@ const ConceptDetailPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       <Navbar />
 
-      <section className="border-b border-border bg-muted/30">
+      <section className="border-b border-border bg-background/80 backdrop-blur">
         <div className="container mx-auto px-4 py-3">
           <Breadcrumb>
             <BreadcrumbList>
@@ -113,7 +113,7 @@ const ConceptDetailPage: React.FC = () => {
                 <BreadcrumbLink asChild>
                   <Link
                     to="/tracks"
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground rounded-full px-3"
                   >
                     Tracks
                   </Link>
@@ -140,11 +140,10 @@ const ConceptDetailPage: React.FC = () => {
         </div>
       </section>
 
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+      <main className="flex-1 py-10">
+        <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-20 h-20 rounded-2xl border border-border bg-muted flex items-center justify-center shrink-0">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <span className="text-3xl font-bold text-foreground">
                   {badgeText}
                 </span>
@@ -152,7 +151,7 @@ const ConceptDetailPage: React.FC = () => {
 
               <div className="min-w-0">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-4xl font-bold text-foreground leading-tight">
+                  <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground mb-2">
                     {formattedConceptName}
                   </h1>
                   <span className="text-muted-foreground">in</span>
@@ -187,14 +186,14 @@ const ConceptDetailPage: React.FC = () => {
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                   {processedAbout && (
-                    <section className="bg-card border border-border rounded-xl p-6">
+                    <section className="bg-background border border-border rounded-2xl p-8 md:p-10 shadow-sm">
                       <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-5 h-5 text-primary" />
                         <h2 className="text-xl font-semibold text-foreground">
                           About {formattedConceptName}
                         </h2>
                       </div>
-                      <div className="prose-container text-foreground">
+                      <div className="prose prose-lg max-w-none text-foreground">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={markdownComponents}
@@ -206,7 +205,7 @@ const ConceptDetailPage: React.FC = () => {
                   )}
 
                   {!processedAbout && (
-                    <section className="bg-card border border-border rounded-xl p-8">
+                    <section className="bg-background border border-dashed border-border rounded-2xl p-10">
                       <div className="text-muted-foreground">
                         Content Not Available
                       </div>
@@ -215,7 +214,7 @@ const ConceptDetailPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <section className="bg-card border border-border rounded-xl p-5">
+                  <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-foreground flex items-center gap-2">
                         <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted border border-border">
@@ -252,7 +251,7 @@ const ConceptDetailPage: React.FC = () => {
                   </section>
 
                   {concept?.links && concept.links.length > 0 && (
-                    <section className="bg-card border border-border rounded-xl p-5">
+                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                         <ExternalLink className="w-4 h-4 text-primary" />
                         Learn More
@@ -285,7 +284,7 @@ const ConceptDetailPage: React.FC = () => {
                   )}
 
                   {practiceExercises.length > 0 && (
-                    <section className="bg-card border border-border rounded-xl p-5">
+                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                         <Code2 className="w-4 h-4 text-primary" />
                         Practice Exercises
@@ -295,7 +294,7 @@ const ConceptDetailPage: React.FC = () => {
                           <Link
                             key={exercise.slug}
                             to={`/tracks/${trackSlug}/exercises/concept/${exercise.slug}`}
-                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
+                            className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
                           >
                             <ExerciseIcon slug={exercise.slug} size="sm" />
                             <div className="flex-1 min-w-0">
@@ -313,7 +312,6 @@ const ConceptDetailPage: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
       </main>
 
       <Footer />

@@ -217,3 +217,47 @@
     }
   }
 }
+/* =========================================
+   GLOBAL MARKDOWN / PROSE FIXES
+   (Prevents layout & scroll break issues)
+   ========================================= */
+
+.prose-container {
+  max-width: 100%;
+}
+
+/* Code blocks */
+.prose-container pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Inline code */
+.prose-container code {
+  word-break: break-word;
+}
+
+/* Tables (very important for Python & theory tracks) */
+.prose-container table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+/* Prevent images from breaking layout */
+.prose-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Lists should not overflow */
+.prose-container ul,
+.prose-container ol {
+  padding-left: 1.25rem;
+}
+/* CRITICAL: allow flex children to scroll */
+.min-h-0 {
+  min-height: 0;
+}

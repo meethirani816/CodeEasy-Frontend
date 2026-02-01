@@ -74,11 +74,13 @@ const Tracks: React.FC = () => {
   }, [searchQuery, tracks]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       <Navbar />
 
       <main className="flex-1">
-        <div className="relative bg-slate-800 text-white overflow-hidden">
+        <div className="relative bg-slate-900 text-white overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
+
           <div className="max-w-7xl mx-auto px-6 pt-12 pb-16">
             <div className="flex justify-center gap-4 mb-8 flex-wrap relative z-10">
               {HEADER_TRACKS.map((slug, i) => (
@@ -128,10 +130,10 @@ const Tracks: React.FC = () => {
             </svg>
 
             <div className="text-center relative z-10">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
                 {tracks.length} languages for you to master
               </h1>
-              <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+              <p className="text-lg text-gray-300/90 max-w-3xl mx-auto leading-relaxed">  
                 Become fluent in your chosen programming languages by completing
                 these tracks created by our{" "}
                 <span className="text-purple-400 font-semibold">
@@ -144,7 +146,7 @@ const Tracks: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="bg-card/80 backdrop-blur rounded-2xl shadow-md border border-border p-6 mb-10">
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <div className="relative flex-1 w-full">
                 <Search
@@ -156,12 +158,12 @@ const Tracks: React.FC = () => {
                   placeholder="Search tracks..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-background border-border h-12 rounded-xl"
+                  className="pl-10 bg-background border-border h-12 rounded-full focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2 rounded-full">
                   <SlidersHorizontal size={16} />
                   Filter by
                 </Button>
@@ -172,14 +174,14 @@ const Tracks: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 text-sm text-gray-600">
+            <div className="mt-4 text-sm text-muted-foreground">
               Showing all {filteredTracks.length} tracks
             </div>
           </div>
 
           {isLoading && (
             <div className="flex justify-center items-center py-20">
-              <Loader2 className="animate-spin text-purple-600" size={48} />
+              <Loader2 className="animate-spin text-primary opacity-80" size={48} />
             </div>
           )}
 
@@ -192,7 +194,7 @@ const Tracks: React.FC = () => {
 
           {!isLoading && !apiError && tracks.length === 0 && (
             <div className="text-center py-20">
-              <Code2 className="mx-auto mb-4 text-gray-400" size={64} />
+              <Code2 className="mx-auto mb-4 text-muted-foreground opacity-80" size={64} />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 No tracks available yet
               </h3>
@@ -203,9 +205,11 @@ const Tracks: React.FC = () => {
           )}
 
           {!isLoading && !apiError && tracks.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {filteredTracks.map((track, index) => (
+              <div className="hover:-translate-y-1 transition-all">
                 <TrackCard key={track.slug || index} track={track} />
+                </div>
               ))}
               {filteredTracks.length === 0 && (
                 <div className="col-span-full text-center py-12">

@@ -30,7 +30,7 @@ const Exercises: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
-  
+
   const [track, setTrack] = useState<Track | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -53,7 +53,7 @@ const Exercises: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Fetch track info
         const trackData = await tracksApi.getTrackBySlug(slug);
         setTrack(trackData);
@@ -110,7 +110,7 @@ const Exercises: React.FC = () => {
       try {
         setIsLoadingExercises(true);
         const slugs = await exercisesApi.getExerciseSlugsByCategory(slug, selectedCategory);
-        
+
         // Convert slugs to Exercise objects
         const exerciseList: Exercise[] = slugs.map(exSlug => ({
           _id: `${slug}-${selectedCategory}-${exSlug}`,
@@ -124,7 +124,7 @@ const Exercises: React.FC = () => {
           exerciseType: 'learning' as const,
           createdAt: new Date().toISOString(),
         }));
-        
+
         setExercises(exerciseList);
         setFilteredExercises(exerciseList);
       } catch (err) {
@@ -209,11 +209,11 @@ const Exercises: React.FC = () => {
   const formatNumber = (num: number) => num.toLocaleString();
 
   // Stats based on real progress
-  const completedCount = slug 
-    ? userProgress.filter(p => p.trackSlug === slug && p.status === 'completed' && p.exerciseSlug !== '_joined').length 
+  const completedCount = slug
+    ? userProgress.filter(p => p.trackSlug === slug && p.status === 'completed' && p.exerciseSlug !== '_joined').length
     : 0;
-  const inProgressCount = slug 
-    ? userProgress.filter(p => p.trackSlug === slug && p.status === 'in_progress' && p.exerciseSlug !== '_joined').length 
+  const inProgressCount = slug
+    ? userProgress.filter(p => p.trackSlug === slug && p.status === 'in_progress' && p.exerciseSlug !== '_joined').length
     : 0;
   const availableCount = exercises.length - completedCount - inProgressCount;
   const lockedCount = 0;
@@ -224,7 +224,7 @@ const Exercises: React.FC = () => {
 
       {/* Breadcrumb */}
       <section className="border-b border-border bg-muted/30">
-        <div className="container mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -252,7 +252,7 @@ const Exercises: React.FC = () => {
 
       {/* Track Header */}
       <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <TrackIcon slug={slug || ''} size="lg" showImage />
@@ -303,7 +303,7 @@ const Exercises: React.FC = () => {
         <>
           {/* Join Track Banner */}
           <section className="bg-muted border-b border-border">
-            <div className="container mx-auto px-4 py-6">
+            <div className="max-w-7xl mx-auto px-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <TrackIcon slug={slug || ''} size="lg" showImage />
@@ -342,35 +342,34 @@ const Exercises: React.FC = () => {
 
           {/* Search and Filters */}
           <section className="py-6">
-            <div className="container mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-6">
               {/* Category tabs */}
               {categories.length > 1 && (
-                <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-border pb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-8">
                   {categories.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors capitalize ${
-                        selectedCategory === cat
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
-                      }`}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all capitalize ${selectedCategory === cat
+                        ? 'bg-primary text-primary-foreground shadow'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                        }`}
                     >
-                      {cat.replace(/-/g, ' ')} Exercises
+                      {cat.replace(/-/g, ' ')}
                     </button>
                   ))}
                 </div>
               )}
 
               {/* Search */}
-              <div className="relative max-w-md mb-6">
+              <div className="relative max-w-lg mb-8">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Search by title"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-background border-border"
+                  className="pl-10 h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
                 />
               </div>
 
@@ -418,7 +417,7 @@ const Exercises: React.FC = () => {
 
               {/* Exercises Grid */}
               {!isLoadingExercises && (
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-5">
                   {filteredExercises.map((exercise) => {
                     const isCompleted = slug && progressApi.isExerciseCompleted(userProgress, slug, exercise.slug);
                     const isInProgress = slug && userProgress.some(
@@ -429,7 +428,7 @@ const Exercises: React.FC = () => {
                       <Link
                         key={exercise._id}
                         to={`/tracks/${slug}/exercises/${selectedCategory}/${exercise.slug}`}
-                        className="bg-card border border-border rounded-lg p-5 hover:border-primary/30 hover:shadow-md transition-all group relative"
+                        className="bg-background border border-border rounded-xl p-6 hover:border-primary/30 hover:shadow-lg transition-all group relative"
                       >
                         {/* Completion indicator */}
                         {isCompleted && (
@@ -445,15 +444,15 @@ const Exercises: React.FC = () => {
 
                         <div className="flex items-start gap-4">
                           {/* Exercise icon */}
-                          <ExerciseIcon 
-                            slug={exercise.slug} 
+                          <ExerciseIcon
+                            slug={exercise.slug}
                             trackSlug={slug}
                             size="md"
                           />
 
                           {/* Content */}
                           <div className="flex-1 min-w-0 pr-6">
-                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                            <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                               {exercise.title}
                             </h3>
 
@@ -461,11 +460,10 @@ const Exercises: React.FC = () => {
                             <div className="flex items-center gap-2 mt-1 mb-2">
                               <Badge
                                 variant="outline"
-                                className={`text-xs font-normal ${
-                                  isCompleted 
-                                    ? 'border-green-300 text-green-700 bg-green-50 dark:border-green-700 dark:text-green-400 dark:bg-green-900/20'
-                                    : 'border-primary/30 text-primary bg-primary/5'
-                                }`}
+                                className={`text-xs font-normal ${isCompleted
+                                  ? 'border-green-300 text-green-700 bg-green-50 dark:border-green-700 dark:text-green-400 dark:bg-green-900/20'
+                                  : 'border-primary/30 text-primary bg-primary/5'
+                                  }`}
                               >
                                 {isCompleted ? 'Completed' : 'Learning Exercise'}
                               </Badge>
@@ -474,7 +472,9 @@ const Exercises: React.FC = () => {
                               </Badge>
                             </div>
 
-                            <p className="text-sm text-muted-foreground line-clamp-2">{exercise.description}</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                              {exercise.description}
+                            </p>
                           </div>
                         </div>
                       </Link>
@@ -484,7 +484,7 @@ const Exercises: React.FC = () => {
                   {filteredExercises.length === 0 && !isLoadingExercises && (
                     <div className="col-span-2 text-center py-12">
                       <p className="text-muted-foreground">
-                        {selectedCategory 
+                        {selectedCategory
                           ? 'No exercises found in this category.'
                           : 'Select a category to view exercises.'}
                       </p>

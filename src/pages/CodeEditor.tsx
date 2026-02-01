@@ -321,7 +321,7 @@ export function hello() {
         setExercise(fallbackExercise);
         setCode(
           getStarterCodeString(fallbackExercise.starterCode, currentTrack) ||
-            getDefaultCode(currentTrack),
+          getDefaultCode(currentTrack),
         );
       } finally {
         setIsLoading(false);
@@ -561,7 +561,7 @@ solution() ->
     } else if (exercise?.starterCode) {
       setCode(
         getStarterCodeString(exercise.starterCode, currentTrack) ||
-          getDefaultCode(currentTrack),
+        getDefaultCode(currentTrack),
       );
     } else {
       setCode(getDefaultCode(currentTrack));
@@ -746,24 +746,24 @@ solution() ->
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Panel - Instructions (Exercism-style single pane) */}
         <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full flex flex-col bg-[#252526] overflow-hidden">
-            <EditorScrollArea className="flex-1">
+          <div className="h-full bg-[#252526] min-h-0 overflow-hidden">
+            {/* SINGLE scroll container */}
+            <EditorScrollArea className="h-full">
               <div className="p-6 space-y-8">
                 {/* Introduction */}
                 {processedIntroduction?.trim() && (
-                  <section>
+                  <section className="pb-8 border-b border-[#3d3d3d]/60">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold text-white">
-                          Introduction
-                        </h2>
+                        <h2 className="text-xl font-bold text-white">Introduction</h2>
                         <p className="text-sm text-gray-400">Start here</p>
                       </div>
                     </div>
-                    <div className="prose-container break-words">
+
+                    <div className="prose-container max-w-none">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={darkMarkdownComponents}
@@ -775,19 +775,18 @@ solution() ->
                 )}
 
                 {/* Instructions */}
-                <section>
+                <section className="pb-8 border-b border-[#3d3d3d]/60">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
                       <FileText className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">
-                        Instructions
-                      </h2>
+                      <h2 className="text-xl font-bold text-white">Instructions</h2>
                       <p className="text-sm text-gray-400">{exercise.title}</p>
                     </div>
                   </div>
-                  <div className="prose-container break-words">
+
+                  <div className="prose-container max-w-none">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={darkMarkdownComponents}
@@ -806,9 +805,7 @@ solution() ->
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-white">Hints</h2>
-                        <p className="text-sm text-gray-400">
-                          Reveal one at a time
-                        </p>
+                        <p className="text-sm text-gray-400">Reveal one at a time</p>
                       </div>
                     </div>
 
@@ -822,27 +819,22 @@ solution() ->
                         <AccordionItem
                           key={index}
                           value={`hint-${index}`}
-                          className="bg-[#1e1e1e] rounded-lg border border-[#3d3d3d] overflow-hidden"
+                          className="bg-[#1e1e1e] rounded-lg border border-[#3d3d3d]"
                         >
-                          <AccordionTrigger className="px-4 py-3 hover:bg-[#2a2a2a] hover:no-underline">
-                            <div className="flex items-center gap-3">
-                              <span className="w-7 h-7 bg-gradient-to-br from-yellow-500/30 to-orange-500/30 rounded-full flex items-center justify-center text-sm text-yellow-400 font-semibold">
-                                {index + 1}
-                              </span>
-                              <span className="text-gray-200 text-sm font-medium text-left">
-                                {hint.title}
-                              </span>
-                            </div>
+                          <AccordionTrigger className="px-4 py-3 hover:bg-[#2a2a2a]">
+                            <span className="text-sm text-gray-200">
+                              {index + 1}. {hint.title}
+                            </span>
                           </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4 pt-0 border-t border-[#3d3d3d]">
-                            <div className="pt-4 pl-10 prose-container">
+                          <AccordionContent className="px-4 pb-4">
+                            <div className="prose-container">
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={darkMarkdownComponents}
                               >
                                 {processConceptLinks(
                                   hint.content,
-                                  currentTrackSlug,
+                                  currentTrackSlug
                                 )}
                               </ReactMarkdown>
                             </div>
@@ -872,11 +864,10 @@ solution() ->
                       <button
                         key={fileName}
                         onClick={() => handleFileChange(fileName)}
-                        className={`px-4 py-2 text-sm font-mono flex items-center gap-2 border-r border-[#3d3d3d] transition-colors ${
-                          activeFile === fileName
-                            ? "bg-[#1e1e1e] text-white border-t-2 border-t-primary"
-                            : "bg-[#2d2d2d] text-gray-400 hover:bg-[#3d3d3d] hover:text-gray-200"
-                        }`}
+                        className={`px-4 py-2 text-sm font-mono flex items-center gap-2 border-r border-[#3d3d3d] transition-colors ${activeFile === fileName
+                          ? "bg-[#1e1e1e] text-white border-t-2 border-t-primary"
+                          : "bg-[#2d2d2d] text-gray-400 hover:bg-[#3d3d3d] hover:text-gray-200"
+                          }`}
                       >
                         <FileCode className="w-4 h-4" />
                         {fileName}
@@ -917,11 +908,10 @@ solution() ->
                   </span>
                   {result && (
                     <Badge
-                      className={`text-xs ${
-                        result.passed
-                          ? "bg-green-500/20 text-green-400 border-green-500/30"
-                          : "bg-red-500/20 text-red-400 border-red-500/30"
-                      }`}
+                      className={`text-xs ${result.passed
+                        ? "bg-green-500/20 text-green-400 border-green-500/30"
+                        : "bg-red-500/20 text-red-400 border-red-500/30"
+                        }`}
                     >
                       {result.passed ? (
                         <>
@@ -937,7 +927,7 @@ solution() ->
                     </Badge>
                   )}
                 </div>
-                <EditorScrollArea className="flex-1">
+                <EditorScrollArea className="flex-1 overflow-y-auto">
                   <div className="p-4">
                     {result ? (
                       <div className="space-y-3">
@@ -967,11 +957,10 @@ solution() ->
                         {result.testResults?.map((test, index) => (
                           <div
                             key={index}
-                            className={`rounded-lg p-3 text-sm border ${
-                              test.passed
-                                ? "bg-green-500/10 border-green-500/20"
-                                : "bg-red-500/10 border-red-500/20"
-                            }`}
+                            className={`rounded-lg p-3 text-sm border ${test.passed
+                              ? "bg-green-500/10 border-green-500/20"
+                              : "bg-red-500/10 border-red-500/20"
+                              }`}
                           >
                             <div className="flex items-center gap-2 mb-2">
                               {test.passed ? (
