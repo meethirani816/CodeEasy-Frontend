@@ -8,7 +8,11 @@ import { Exercise, SubmissionResult } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { cleanExerciseMarkdown, darkMarkdownComponents, processConceptLinks } from "@/lib/markdown";
+import {
+  cleanExerciseMarkdown,
+  darkMarkdownComponents,
+  processConceptLinks,
+} from "@/lib/markdown";
 import { getTrackConfig } from "@/components/TrackIcon";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -79,35 +83,36 @@ const languageMap: Record<string, string> = {
 // For C/C++ tracks with multiple files (.c, .h), we handle them appropriately
 const getStarterCodeString = (
   starterCode: string | Record<string, string> | undefined,
-  track?: string
+  track?: string,
 ): string | undefined => {
   if (!starterCode) return undefined;
   if (typeof starterCode === "string") return starterCode;
-  
+
   // For object format (multiple files like C/C++ with .c and .h files)
   const entries = Object.entries(starterCode);
   if (entries.length === 0) return undefined;
-  
+
   // For C/C++, show only the .c file (solution file) in editor
   // The .h file is typically provided but not edited
-  if (track === 'c' || track === 'cpp') {
+  if (track === "c" || track === "cpp") {
     // Find the main solution file (.c for C, .cpp for C++)
-    const solutionExt = track === 'c' ? '.c' : '.cpp';
-    const solutionEntry = entries.find(([filename]) => 
-      filename.endsWith(solutionExt) && !filename.includes('test')
+    const solutionExt = track === "c" ? ".c" : ".cpp";
+    const solutionEntry = entries.find(
+      ([filename]) =>
+        filename.endsWith(solutionExt) && !filename.includes("test"),
     );
     if (solutionEntry) {
       return solutionEntry[1];
     }
     // Fallback: find any .c or .cpp file
-    const cEntry = entries.find(([filename]) => 
-      filename.endsWith('.c') || filename.endsWith('.cpp')
+    const cEntry = entries.find(
+      ([filename]) => filename.endsWith(".c") || filename.endsWith(".cpp"),
     );
     if (cEntry) {
       return cEntry[1];
     }
   }
-  
+
   // For other languages, return the first file's content
   return entries[0][1];
 };
@@ -120,47 +125,54 @@ interface ParsedHint {
 
 const parseHintsFromMarkdown = (hintsMarkdown: string): ParsedHint[] => {
   if (!hintsMarkdown) return [];
-  
+
   const hints: ParsedHint[] = [];
-  
+
   // Split by ## Hint patterns or numbered patterns
-  const sections = hintsMarkdown.split(/(?=##\s*(?:Hint\s*)?\d+[.:]?|(?=\n\d+\.\s+))/gi);
-  
+  const sections = hintsMarkdown.split(
+    /(?=##\s*(?:Hint\s*)?\d+[.:]?|(?=\n\d+\.\s+))/gi,
+  );
+
   sections.forEach((section, index) => {
     const trimmed = section.trim();
     if (!trimmed) return;
-    
+
     // Extract title from first line
-    const lines = trimmed.split('\n');
-    let title = lines[0].replace(/^#+\s*/, '').replace(/^\d+\.\s*/, '').trim();
-    let content = lines.slice(1).join('\n').trim();
-    
+    const lines = trimmed.split("\n");
+    let title = lines[0]
+      .replace(/^#+\s*/, "")
+      .replace(/^\d+\.\s*/, "")
+      .trim();
+    let content = lines.slice(1).join("\n").trim();
+
     // If no clear title, create one
-    if (!title || title.toLowerCase().startsWith('hint')) {
+    if (!title || title.toLowerCase().startsWith("hint")) {
       const match = title.match(/hint\s*(\d+)/i);
       const hintNum = match ? match[1] : (hints.length + 1).toString();
       title = `Hint ${hintNum}`;
     }
-    
+
     // Clean up content
-    content = content.replace(/^[-–—]\s*/, '');
-    
+    content = content.replace(/^[-–—]\s*/, "");
+
     if (content) {
       hints.push({ title, content });
     }
   });
-  
+
   return hints;
 };
 
 // Parse hints from array format
 const parseHintsFromArray = (hints: string[]): ParsedHint[] => {
   return hints
-    .filter(h => h && h.trim())
+    .filter((h) => h && h.trim())
     .map((hint, index) => {
       // Check if hint has a title pattern like "## 1. Title - Content"
-      const match = hint.match(/^(?:##?\s*)?(\d+\.?\s*)?(.+?)(?:\s*[-–—]\s*)(.+)$/s);
-      
+      const match = hint.match(
+        /^(?:##?\s*)?(\d+\.?\s*)?(.+?)(?:\s*[-–—]\s*)(.+)$/s,
+      );
+
       if (match) {
         const [, , title, content] = match;
         return {
@@ -168,7 +180,7 @@ const parseHintsFromArray = (hints: string[]): ParsedHint[] => {
           content: content?.trim() || hint,
         };
       }
-      
+
       // Simple hint without title
       return {
         title: `Hint ${index + 1}`,
@@ -224,7 +236,7 @@ const CodeEditorPage: React.FC = () => {
           data = await exercisesApi.getExerciseBySlug(
             trackSlug,
             category,
-            exerciseSlug
+            exerciseSlug,
           );
         } else if (exerciseId) {
           // Legacy format
@@ -234,23 +246,35 @@ const CodeEditorPage: React.FC = () => {
         }
 
         setExercise(data);
-        const currentTrackSlug = typeof data.track === 'string' ? data.track : data.track?.slug || 'javascript';
-        
+        const currentTrackSlug =
+          typeof data.track === "string"
+            ? data.track
+            : data.track?.slug || "javascript";
+
         // Handle multi-file exercises (like C/C++ with .c and .h files)
-        if (data.starterCode && typeof data.starterCode === 'object') {
+        if (data.starterCode && typeof data.starterCode === "object") {
           const filesObj = data.starterCode as Record<string, string>;
           setFiles(filesObj);
           // Set first file as active
           const fileNames = Object.keys(filesObj);
           if (fileNames.length > 0) {
             // Prefer solution file over header file
-            const solutionFile = fileNames.find(f => f.endsWith('.c') || f.endsWith('.cpp') || f.endsWith('.py') || f.endsWith('.js') || f.endsWith('.ts'));
+            const solutionFile = fileNames.find(
+              (f) =>
+                f.endsWith(".c") ||
+                f.endsWith(".cpp") ||
+                f.endsWith(".py") ||
+                f.endsWith(".js") ||
+                f.endsWith(".ts"),
+            );
             setActiveFile(solutionFile || fileNames[0]);
             setCode(filesObj[solutionFile || fileNames[0]]);
           }
         } else {
           // Single file exercise
-          const starterCode = getStarterCodeString(data.starterCode, currentTrackSlug) || getDefaultCode(currentTrackSlug);
+          const starterCode =
+            getStarterCodeString(data.starterCode, currentTrackSlug) ||
+            getDefaultCode(currentTrackSlug);
           setCode(starterCode);
           setFiles({});
           setActiveFile("");
@@ -297,7 +321,7 @@ export function hello() {
         setExercise(fallbackExercise);
         setCode(
           getStarterCodeString(fallbackExercise.starterCode, currentTrack) ||
-            getDefaultCode(currentTrack)
+            getDefaultCode(currentTrack),
         );
       } finally {
         setIsLoading(false);
@@ -426,7 +450,7 @@ solution() ->
   const handleFileChange = (fileName: string) => {
     // Save current file content
     if (activeFile && files[activeFile] !== undefined) {
-      setFiles(prev => ({ ...prev, [activeFile]: code }));
+      setFiles((prev) => ({ ...prev, [activeFile]: code }));
     }
     setActiveFile(fileName);
     setCode(files[fileName] || "");
@@ -437,7 +461,7 @@ solution() ->
     const newCode = value || "";
     setCode(newCode);
     if (activeFile) {
-      setFiles(prev => ({ ...prev, [activeFile]: newCode }));
+      setFiles((prev) => ({ ...prev, [activeFile]: newCode }));
     }
   };
 
@@ -470,7 +494,7 @@ solution() ->
         currentCat,
         currentExSlug,
         code,
-        getLanguage()
+        getLanguage(),
       );
       setResult(response.result);
 
@@ -479,7 +503,7 @@ solution() ->
         await progressApi.markCompleted(
           currentTrack,
           currentCat,
-          currentExSlug
+          currentExSlug,
         );
 
         toast({
@@ -514,20 +538,30 @@ solution() ->
   };
 
   const handleReset = () => {
-    const currentTrack = typeof exercise?.track === "string" ? exercise.track : exercise?.track?.slug || "javascript";
-    if (exercise?.starterCode && typeof exercise.starterCode === 'object') {
+    const currentTrack =
+      typeof exercise?.track === "string"
+        ? exercise.track
+        : exercise?.track?.slug || "javascript";
+    if (exercise?.starterCode && typeof exercise.starterCode === "object") {
       // Multi-file: reset all files
       const filesObj = exercise.starterCode as Record<string, string>;
       setFiles(filesObj);
       const fileNames = Object.keys(filesObj);
-      const solutionFile = fileNames.find(f => f.endsWith('.c') || f.endsWith('.cpp') || f.endsWith('.py') || f.endsWith('.js') || f.endsWith('.ts'));
+      const solutionFile = fileNames.find(
+        (f) =>
+          f.endsWith(".c") ||
+          f.endsWith(".cpp") ||
+          f.endsWith(".py") ||
+          f.endsWith(".js") ||
+          f.endsWith(".ts"),
+      );
       const firstFile = solutionFile || fileNames[0];
       setActiveFile(firstFile);
       setCode(filesObj[firstFile] || getDefaultCode(currentTrack));
     } else if (exercise?.starterCode) {
       setCode(
         getStarterCodeString(exercise.starterCode, currentTrack) ||
-          getDefaultCode(currentTrack)
+          getDefaultCode(currentTrack),
       );
     } else {
       setCode(getDefaultCode(currentTrack));
@@ -559,8 +593,8 @@ solution() ->
     currentTrackSlug === "c"
       ? "C"
       : currentTrackSlug === "javascript"
-      ? "JavaScript"
-      : currentTrackSlug.toUpperCase();
+        ? "JavaScript"
+        : currentTrackSlug.toUpperCase();
   const iconConfig = getTrackIconConfig(currentTrackSlug);
 
   // Parse hints - support both array and markdown string formats
@@ -568,7 +602,7 @@ solution() ->
   if (exercise.hints) {
     if (Array.isArray(exercise.hints)) {
       parsedHints = parseHintsFromArray(exercise.hints);
-    } else if (typeof exercise.hints === 'string') {
+    } else if (typeof exercise.hints === "string") {
       parsedHints = parseHintsFromMarkdown(exercise.hints);
     }
   }
@@ -576,28 +610,38 @@ solution() ->
 
   // Extract introduction and instructions from exercise data
   // Look for introduction in exercise data or extract from instructions
-  let introduction = '';
-  let instructions = exercise.instructions || '';
-  
+  let introduction = "";
+  let instructions = exercise.instructions || "";
+
   // Check if exercise has separate introduction field
   if ((exercise as any).introduction) {
     introduction = (exercise as any).introduction;
   } else {
     // Try to extract introduction from instructions markdown
-    const introMatch = instructions.match(/^#*\s*Introduction\s*\n([\s\S]*?)(?=\n#|$)/i);
+    const introMatch = instructions.match(
+      /^#*\s*Introduction\s*\n([\s\S]*?)(?=\n#|$)/i,
+    );
     if (introMatch) {
       introduction = introMatch[1].trim();
       // Remove introduction from instructions
-      instructions = instructions.replace(/^#*\s*Introduction\s*\n[\s\S]*?(?=\n#|$)/i, '').trim();
+      instructions = instructions
+        .replace(/^#*\s*Introduction\s*\n[\s\S]*?(?=\n#|$)/i, "")
+        .trim();
     }
   }
-  
+
   // Clean the instructions markdown
   const cleanedInstructions = cleanExerciseMarkdown(instructions);
-  
-  // Process concept links
-  const processedIntroduction = processConceptLinks(introduction, currentTrackSlug);
-  const processedInstructions = processConceptLinks(cleanedInstructions, currentTrackSlug);
+
+  // Process coancept links
+  const processedIntroduction = processConceptLinks(
+    introduction,
+    currentTrackSlug,
+  );
+  const processedInstructions = processConceptLinks(
+    cleanedInstructions,
+    currentTrackSlug,
+  );
 
   return (
     <div className="h-screen flex flex-col bg-[#1e1e1e]">
@@ -611,7 +655,7 @@ solution() ->
               const backCategory = category || exercise?.category || "practice";
               const backExerciseSlug = exerciseSlug || exercise?.slug || "";
               navigate(
-                `/tracks/${currentTrackSlug}/exercises/${backCategory}/${backExerciseSlug}`
+                `/tracks/${currentTrackSlug}/exercises/${backCategory}/${backExerciseSlug}`,
               );
             }}
             className="text-gray-300 hover:text-white hover:bg-[#3d3d3d]"
@@ -642,9 +686,16 @@ solution() ->
             onClick={() => {
               if (!hasHints) return;
               // Reveal the first hint and scroll to the hints section
-              setOpenHints((prev) => (prev.includes('hint-0') ? prev : [...prev, 'hint-0']));
+              setOpenHints((prev) =>
+                prev.includes("hint-0") ? prev : [...prev, "hint-0"],
+              );
               // allow layout to paint before scrolling
-              requestAnimationFrame(() => hintsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+              requestAnimationFrame(() =>
+                hintsRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                }),
+              );
             }}
             className="text-gray-300 hover:text-white hover:bg-[#3d3d3d]"
             disabled={!hasHints}
@@ -706,12 +757,17 @@ solution() ->
                         <BookOpen className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold text-white">Introduction</h2>
+                        <h2 className="text-xl font-bold text-white">
+                          Introduction
+                        </h2>
                         <p className="text-sm text-gray-400">Start here</p>
                       </div>
                     </div>
                     <div className="prose-container break-words">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={darkMarkdownComponents}>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={darkMarkdownComponents}
+                      >
                         {processedIntroduction}
                       </ReactMarkdown>
                     </div>
@@ -725,12 +781,17 @@ solution() ->
                       <FileText className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Instructions</h2>
+                      <h2 className="text-xl font-bold text-white">
+                        Instructions
+                      </h2>
                       <p className="text-sm text-gray-400">{exercise.title}</p>
                     </div>
                   </div>
                   <div className="prose-container break-words">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={darkMarkdownComponents}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={darkMarkdownComponents}
+                    >
                       {processedInstructions || "No instructions available."}
                     </ReactMarkdown>
                   </div>
@@ -745,7 +806,9 @@ solution() ->
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-white">Hints</h2>
-                        <p className="text-sm text-gray-400">Reveal one at a time</p>
+                        <p className="text-sm text-gray-400">
+                          Reveal one at a time
+                        </p>
                       </div>
                     </div>
 
@@ -773,8 +836,14 @@ solution() ->
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4 pt-0 border-t border-[#3d3d3d]">
                             <div className="pt-4 pl-10 prose-container">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]} components={darkMarkdownComponents}>
-                                {processConceptLinks(hint.content, currentTrackSlug)}
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={darkMarkdownComponents}
+                              >
+                                {processConceptLinks(
+                                  hint.content,
+                                  currentTrackSlug,
+                                )}
                               </ReactMarkdown>
                             </div>
                           </AccordionContent>
@@ -876,7 +945,9 @@ solution() ->
                           <div className="rounded-lg p-3 text-sm border bg-red-500/10 border-red-500/20">
                             <div className="flex items-center gap-2 mb-2">
                               <XCircle className="w-4 h-4 text-red-400" />
-                              <span className="font-medium text-red-400">Error</span>
+                              <span className="font-medium text-red-400">
+                                Error
+                              </span>
                             </div>
                             <pre className="text-xs text-red-300 whitespace-pre-wrap break-words font-mono">
                               {result.error}
@@ -885,7 +956,9 @@ solution() ->
                         )}
                         {result.output && !result.error && (
                           <div className="rounded-lg p-3 text-sm border bg-[#252526] border-[#3d3d3d]">
-                            <div className="text-xs text-gray-400 mb-2">Output:</div>
+                            <div className="text-xs text-gray-400 mb-2">
+                              Output:
+                            </div>
                             <pre className="text-gray-200 whitespace-pre-wrap break-words font-mono text-xs">
                               {result.output}
                             </pre>
@@ -911,20 +984,46 @@ solution() ->
                               </span>
                             </div>
                             <div className="space-y-1 text-xs font-mono">
-                              <div className="text-gray-400">
-                                <span className="text-gray-500">Input: </span>
-                                <span className="text-gray-300">{test.input}</span>
-                              </div>
-                              <div className="text-gray-400">
-                                <span className="text-gray-500">Expected: </span>
-                                <span className="text-green-400">{test.expectedOutput}</span>
-                              </div>
-                              <div className="text-gray-400">
-                                <span className="text-gray-500">Actual: </span>
-                                <span className={test.passed ? "text-green-400" : "text-red-400"}>
-                                  {test.actualOutput}
-                                </span>
-                              </div>
+                              {test.input && (
+                                <div className="text-gray-400">
+                                  <span className="text-gray-500">Input: </span>
+                                  <span className="text-gray-300">
+                                    {typeof test.input === "object"
+                                      ? JSON.stringify(test.input)
+                                      : test.input}
+                                  </span>
+                                </div>
+                              )}
+                              {test.expectedOutput && (
+                                <div className="text-gray-400">
+                                  <span className="text-gray-500">
+                                    Expected:{" "}
+                                  </span>
+                                  <span className="text-green-400">
+                                    {typeof test.expectedOutput === "object"
+                                      ? JSON.stringify(test.expectedOutput)
+                                      : test.expectedOutput}
+                                  </span>
+                                </div>
+                              )}
+                              {test.actualOutput && (
+                                <div className="text-gray-400">
+                                  <span className="text-gray-500">
+                                    Actual:{" "}
+                                  </span>
+                                  <span
+                                    className={
+                                      test.passed
+                                        ? "text-green-400"
+                                        : "text-red-400"
+                                    }
+                                  >
+                                    {typeof test.actualOutput === "object"
+                                      ? JSON.stringify(test.actualOutput)
+                                      : test.actualOutput}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}

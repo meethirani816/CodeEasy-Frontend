@@ -1,6 +1,13 @@
-
 import apiClient from './apiClient';
 import { Track, Category, TrackConfig, ConceptConfig } from '@/types';
+
+// Helper to format concept slug to display name (e.g., "arithmetic-operators" -> "Arithmetic Operators")
+const formatConceptName = (slug: string): string => {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 
 // Track name mapping - Supported languages
 const TRACK_NAMES: Record<string, string> = {
@@ -225,15 +232,23 @@ export const tracksApi = {
       // Try concepts API first
       const response = await apiClient.get(`/api/tracks/${slug}/concepts`);
       // Backend returns { success: true, concepts: [...] }
-      if (response.data.concepts) {
-        return response.data.concepts;
-      }
-      // Fallback to config
-      const config = await tracksApi.getTrackConfig(slug);
-      return config?.concepts || [];
+      const rawConcepts = response.data.concepts || [];
+      
+      // Map concepts to ensure they have name property (create from slug if missing)
+      return rawConcepts.map((concept: any) => ({
+        uuid: concept.uuid || concept.slug || '',
+        slug: concept.slug || '',
+        name: concept.name || formatConceptName(concept.slug || ''),
+      }));
     } catch (error) {
-      console.warn('[Tracks API] Could not fetch concepts:', error);
-      return [];
+      console.warn('[Tracks API] Could not fetch concepts, trying config:', error);
+      // Fallback to config
+      try {
+        const config = await tracksApi.getTrackConfig(slug);
+        return config?.concepts || [];
+      } catch {
+        return [];
+      }
     }
   },
 

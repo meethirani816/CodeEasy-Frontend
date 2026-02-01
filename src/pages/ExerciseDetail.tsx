@@ -200,8 +200,8 @@ const ExerciseDetail: React.FC = () => {
 
       {/* Header */}
       <section className="border-b py-8">
-        <div className="container mx-auto px-4 flex gap-5 items-center">
-          <ExerciseIcon slug={exercise.slug} size="lg" />
+        <div className="container mx-auto px-4 flex gap-6 items-center">
+          <ExerciseIcon slug={exercise.slug} size="lg" className="w-20 h-20" />
 
           <div>
             <h1 className="text-3xl font-bold mb-2">{exercise.title}</h1>

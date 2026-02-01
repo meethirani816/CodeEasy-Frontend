@@ -2,8 +2,8 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // In dev mode, use empty baseURL to leverage Vite's proxy
 // In production, use VITE_API_URL or fallback
-export const API_BASE_URL = import.meta.env.DEV 
-  ? '' 
+export const API_BASE_URL = import.meta.env.MODE === 'development' 
+  ? '' // Use Vite proxy
   : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 const apiClient: AxiosInstance = axios.create({
