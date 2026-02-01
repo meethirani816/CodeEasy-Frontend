@@ -16,7 +16,7 @@ import {
   BookOpen,
   Trophy,
 } from "lucide-react";
-
+import heroIllustration from "@/assets/hero-illustration.png";
 const Index: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -48,15 +48,15 @@ const Index: React.FC = () => {
       <Navbar />
 
       {/* Hero Section with Purple Gradient */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5" />
-        <div className="absolute inset-0 header-pattern opacity-50" />
+      <section className="relative py-20 md:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10" />
+        <div className="absolute inset-0 opacity-40 header-pattern" />
 
         <div className="container mx-auto px-4 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side - Text */}
             <div className="max-w-xl">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6 leading-tight">
                 Get <span className="highlight-yellow">really</span> good at
                 programming.
               </h1>
@@ -79,7 +79,7 @@ const Index: React.FC = () => {
                   <Button
                     size="lg"
                     onClick={() => navigate("/tracks")}
-                    className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-lg shadow-lg shadow-primary/25"
+                    className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                   >
                     Explore Languages
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -89,7 +89,7 @@ const Index: React.FC = () => {
                     <Button
                       size="lg"
                       onClick={() => navigate("/signup")}
-                      className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-lg shadow-lg shadow-primary/25"
+                      className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                     >
                       Sign up for free
                     </Button>
@@ -97,7 +97,7 @@ const Index: React.FC = () => {
                       size="lg"
                       variant="outline"
                       onClick={() => navigate("/tracks")}
-                      className="border-border text-foreground hover:bg-muted px-8 py-6 text-lg font-medium rounded-lg"
+                      className="border-border text-foreground hover:bg-muted px-8 py-6 text-lg font-medium rounded-full transition"
                     >
                       Explore languages
                     </Button>
@@ -106,7 +106,7 @@ const Index: React.FC = () => {
               </div>
 
               {/* Info box */}
-              <div className="mt-8 flex items-center gap-4 p-4 bg-card border border-border rounded-xl">
+              <div className="mt-8 flex items-center gap-4 p-5 bg-card/80 backdrop-blur border border-border rounded-2xl">
                 <div className="flex items-center gap-2 text-foreground font-semibold">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-500 rounded-lg flex items-center justify-center">
                     <Code2 className="w-4 h-4 text-white" />
@@ -114,40 +114,20 @@ const Index: React.FC = () => {
                   <span>CodeEasy</span>
                 </div>
                 <span className="text-muted-foreground text-sm">
-                  is an independent, community focused, not-for-profit
-                  organisation.
+                  is a Learning Platform for Programming Languages to Learn in Unique Way.
                 </span>
               </div>
             </div>
 
             {/* Right side - Illustration with track icons */}
-            <div className="hidden lg:flex justify-center items-center relative">
-              <div className="w-80 h-80 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-full flex items-center justify-center relative">
-                {tracks.slice(0, 4).map((track, i) => {
-                  const angle = (i * 90 - 45) * (Math.PI / 180);
-                  const radius = 120;
-                  const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius;
-
-                  return (
-                    <div
-                      key={track._id}
-                      className="absolute animate-fade-in"
-                      style={{
-                        transform: `translate(${x}px, ${y}px)`,
-                        animationDelay: `${i * 0.1}s`,
-                      }}
-                    >
-                      <div className="bg-white rounded-2xl p-3 shadow-xl border border-border hover:scale-110 transition-transform cursor-pointer">
-                        <TrackIcon slug={track.slug} size="lg" showImage />
-                      </div>
-                    </div>
-                  );
-                })}
-
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center shadow-xl">
-                  <Sparkles className="w-10 h-10 text-white" />
-                </div>
+            {/* Right Illustration */}
+            <div className="relative animate-slide-up stagger-2">
+              <div className="relative">
+                <img
+                  src={heroIllustration}
+                  alt="Three diverse people collaborating on code together"
+                  className="w-full max-w-md lg:max-w-lg mx-auto drop-shadow-xl"
+                />
               </div>
             </div>
           </div>
@@ -163,7 +143,7 @@ const Index: React.FC = () => {
         <div className="absolute left-10 top-24 h-7 w-7 rotate-45 border-2 border-primary/30 hidden md:block" />
         <div className="absolute right-14 top-28 h-7 w-7 rounded-sm border-2 border-yellow-400/70 hidden md:block" />
         <div className="absolute left-24 top-44 h-2 w-7 rotate-45 bg-primary/30 rounded-full hidden md:block" />
-        <div className="absolute right-24 top-56 grid grid-cols-3 gap-1 opacity-40 hidden md:grid">
+        <div className="absolute right-24 top-56 hidden md:grid grid-cols-3 gap-1 opacity-40">
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
@@ -180,7 +160,7 @@ const Index: React.FC = () => {
               <Grid3X3 className="h-7 w-7 text-primary" />
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
               Explore and get fluent in
               <br />
               <span className="text-foreground">
@@ -202,10 +182,11 @@ const Index: React.FC = () => {
                 <Link
                   key={track._id}
                   to={`/tracks/${track.slug}`}
-                  className="group flex flex-col items-center text-center"
+                  className="group flex flex-col items-center text-center transition-all duration-300"
                 >
                   {/* icon */}
-                  <div className="transition-transform duration-200 group-hover:-translate-y-1">
+                  <div className="relative transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105">
+                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition" />
                     <TrackIcon slug={track.slug} size="xl" showImage />
                   </div>
 
@@ -255,7 +236,7 @@ const Index: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6">
+            <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                 <BookOpen className="w-8 h-8 text-white" />
               </div>
@@ -271,7 +252,7 @@ const Index: React.FC = () => {
               </p>
             </div>
 
-            <div className="text-center p-6">
+            <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                 <Code2 className="w-8 h-8 text-white" />
               </div>
@@ -287,7 +268,7 @@ const Index: React.FC = () => {
               </p>
             </div>
 
-            <div className="text-center p-6">
+            <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                 <Trophy className="w-8 h-8 text-white" />
               </div>
@@ -390,7 +371,7 @@ const Index: React.FC = () => {
 
             {/* Code preview mockup */}
             <div className="relative">
-              <div className="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl">
+              <div className="bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-[#3d3d3d]">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
@@ -416,7 +397,7 @@ const Index: React.FC = () => {
                 </pre>
               </div>
 
-              <div className="absolute -bottom-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+              <div className="absolute -bottom-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
                 <span className="font-medium">All tests passed!</span>
               </div>

@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { conceptsApi } from '@/api/concepts';
-import { tracksApi } from '@/api/tracks';
-import { ConceptDetail as ConceptDetailType, TrackConfig } from '@/types';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, BookOpen, ExternalLink, ChevronRight, Lightbulb, Code2 } from 'lucide-react';
-import TrackIcon from '@/components/TrackIcon';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { markdownComponents, processConceptLinks } from '@/lib/markdown';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { conceptsApi } from "@/api/concepts";
+import { tracksApi } from "@/api/tracks";
+import { ConceptDetail as ConceptDetailType, TrackConfig } from "@/types";
+import { Button } from "@/components/ui/button";
+import {
+  Loader2,
+  BookOpen,
+  ExternalLink,
+  ChevronRight,
+  Code2,
+} from "lucide-react";
+import TrackIcon from "@/components/TrackIcon";
+import ExerciseIcon from "@/components/ExerciseIcon";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { markdownComponents, processConceptLinks } from "@/lib/markdown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,10 +25,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+} from "@/components/ui/breadcrumb";
 
 const ConceptDetailPage: React.FC = () => {
-  const { slug: trackSlug, conceptSlug } = useParams<{ slug: string; conceptSlug: string }>();
+  const { slug: trackSlug, conceptSlug } = useParams<{
+    slug: string;
+    conceptSlug: string;
+  }>();
   const navigate = useNavigate();
   const [concept, setConcept] = useState<ConceptDetailType | null>(null);
   const [trackConfig, setTrackConfig] = useState<TrackConfig | null>(null);
@@ -37,7 +46,6 @@ const ConceptDetailPage: React.FC = () => {
         setIsLoading(true);
         setError(null);
 
-        // Fetch concept detail and track config in parallel
         const [conceptData, configData] = await Promise.all([
           conceptsApi.getConceptDetail(trackSlug, conceptSlug),
           tracksApi.getTrackConfig(trackSlug),
@@ -46,8 +54,8 @@ const ConceptDetailPage: React.FC = () => {
         setConcept(conceptData);
         setTrackConfig(configData);
       } catch (err) {
-        console.error('Failed to load concept:', err);
-        setError('Failed to load concept details.');
+        console.error("Failed to load concept:", err);
+        setError("Failed to load concept details.");
       } finally {
         setIsLoading(false);
       }
@@ -67,38 +75,58 @@ const ConceptDetailPage: React.FC = () => {
     );
   }
 
-  const trackName = trackConfig?.language || trackSlug?.toUpperCase() || 'Unknown';
-  const conceptName = conceptSlug?.replace(/-/g, ' ') || 'Unknown';
-  const formattedConceptName = conceptName.charAt(0).toUpperCase() + conceptName.slice(1);
+  const trackName =
+    trackConfig?.language || trackSlug?.toUpperCase() || "Unknown";
+  const conceptName = conceptSlug?.replace(/-/g, " ") || "Unknown";
+  const formattedConceptName =
+    conceptName.charAt(0).toUpperCase() + conceptName.slice(1);
 
-  // Find related concept exercises
-  const relatedExercises = trackConfig?.exercises?.concept?.filter(
-    ex => ex.concepts?.includes(conceptSlug || '')
-  ) || [];
+  const relatedExercises =
+    trackConfig?.exercises?.concept?.filter((ex) =>
+      ex.concepts?.includes(conceptSlug || ""),
+    ) || [];
 
-  // Process markdown content for concept links
-  const processedIntroduction = processConceptLinks(concept?.introduction || '', trackSlug || '');
-  const processedAbout = processConceptLinks(concept?.about || '', trackSlug || '');
+  const exerciseCount = relatedExercises.length;
+  const featuredExercise = relatedExercises[0] || null;
+
+  const practiceExercises = featuredExercise
+    ? relatedExercises.filter((ex) => ex.slug !== featuredExercise.slug)
+    : relatedExercises;
+
+  const badgeText =
+    (formattedConceptName || "").trim().slice(0, 2).toUpperCase() || "??";
+
+  const processedAbout = processConceptLinks(
+    concept?.about || "",
+    trackSlug || "",
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       <Navbar />
 
-      {/* Breadcrumb */}
-      <section className="border-b border-border bg-muted/30">
+      <section className="border-b border-border bg-background/80 backdrop-blur">
         <div className="container mx-auto px-4 py-3">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/tracks" className="text-muted-foreground hover:text-foreground">Tracks</Link>
+                  <Link
+                    to="/tracks"
+                    className="text-muted-foreground hover:text-foreground rounded-full px-3"
+                  >
+                    Tracks
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>&gt;</BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to={`/tracks/${trackSlug}`} className="text-muted-foreground hover:text-foreground flex items-center gap-2">
-                    <TrackIcon slug={trackSlug || ''} size="sm" showImage />
+                  <Link
+                    to={`/tracks/${trackSlug}`}
+                    className="text-muted-foreground hover:text-foreground flex items-center gap-2"
+                  >
+                    <TrackIcon slug={trackSlug || ""} size="sm" showImage />
                     {trackName}
                   </Link>
                 </BreadcrumbLink>
@@ -112,32 +140,34 @@ const ConceptDetailPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Main Content */}
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/tracks/${trackSlug}`)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to {trackName}
-              </Button>
-            </div>
-
-            <div className="flex items-start gap-6 mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-2xl flex items-center justify-center">
-                <Lightbulb className="w-8 h-8 text-primary" />
+      <main className="flex-1 py-10">
+        <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+                <span className="text-3xl font-bold text-foreground">
+                  {badgeText}
+                </span>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{formattedConceptName}</h1>
-                <p className="text-muted-foreground">
-                  Learn about {formattedConceptName.toLowerCase()} in {trackName}
-                </p>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground mb-2">
+                    {formattedConceptName}
+                  </h1>
+                  <span className="text-muted-foreground">in</span>
+
+                  <span className="inline-flex items-center gap-2">
+                    <TrackIcon slug={trackSlug || ""} size="sm" showImage />
+                    <span className="text-sm text-muted-foreground">
+                      {trackName}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
+                  <span>↔</span>
+                  <span>{exerciseCount} exercises</span>
+                </div>
               </div>
             </div>
 
@@ -154,34 +184,16 @@ const ConceptDetailPage: React.FC = () => {
               </div>
             ) : (
               <div className="grid lg:grid-cols-3 gap-8">
-                {/* Main Content */}
                 <div className="lg:col-span-2 space-y-8">
-                  {/* Introduction Section
-                  {processedIntroduction && (
-                    <section className="bg-card border border-border rounded-xl p-6">
+                  {processedAbout && (
+                    <section className="bg-background border border-border rounded-2xl p-8 md:p-10 shadow-sm">
                       <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-5 h-5 text-primary" />
-                        <h2 className="text-xl font-semibold text-foreground">Introduction</h2>
+                        <h2 className="text-xl font-semibold text-foreground">
+                          About {formattedConceptName}
+                        </h2>
                       </div>
-                      <div className="prose-container text-foreground">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={markdownComponents}
-                        >
-                          {processedIntroduction}
-                        </ReactMarkdown>
-                      </div>
-                    </section>
-                  )} */}
-
-                  {/* About Section */}
-                  {processedAbout && (
-                    <section className="bg-card border border-border rounded-xl p-6">
-                      <div className="flex items-center gap-2 mb-4">
-                        {/* <Lightbulb className="w-5 h-5 text-primary" /> */}
-                      </div>
-                      <div className="prose-container text-foreground">
-                        <h1 style={{ fontWeight: 'bold' }}>About</h1>
+                      <div className="prose prose-lg max-w-none text-foreground">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={markdownComponents}
@@ -192,38 +204,54 @@ const ConceptDetailPage: React.FC = () => {
                     </section>
                   )}
 
-                  {/* No content fallback - check if backend returned empty */}
-                  {!processedIntroduction && !processedAbout && (
-                    <section className="bg-card border border-border rounded-xl p-8">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center shrink-0">
-                          <Lightbulb className="w-6 h-6 text-yellow-500" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground mb-2">Content Not Available</h3>
-                          <p className="text-muted-foreground mb-4">
-                            The documentation for this concept hasn't been loaded from the backend yet.
-                          </p>
-                          <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-                            <p className="font-medium mb-2">Backend should return:</p>
-                            <code className="text-xs bg-background px-2 py-1 rounded block mb-2">
-                              GET /api/tracks/{trackSlug}/concepts/{conceptSlug}
-                            </code>
-                            <p className="text-xs">
-                              Response should include: <code className="bg-background px-1 rounded">about</code>, <code className="bg-background px-1 rounded">introduction</code>, and <code className="bg-background px-1 rounded">links</code> fields.
-                            </p>
-                          </div>
-                        </div>
+                  {!processedAbout && (
+                    <section className="bg-background border border-dashed border-border rounded-2xl p-10">
+                      <div className="text-muted-foreground">
+                        Content Not Available
                       </div>
                     </section>
                   )}
                 </div>
 
-                {/* Sidebar */}
                 <div className="space-y-6">
-                  {/* Learn More Links */}
+                  <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted border border-border">
+                          ⬚
+                        </span>
+                        Learn {formattedConceptName}
+                      </h3>
+                    </div>
+
+                    {featuredExercise ? (
+                      <Link
+                        to={`/tracks/${trackSlug}/exercises/concept/${featuredExercise.slug}`}
+                        className="flex items-start gap-4 p-4 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+                      >
+                        <ExerciseIcon slug={featuredExercise.slug} size="md" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-base font-semibold text-foreground truncate">
+                              {featuredExercise.name}
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                          </div>
+
+                          <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background text-muted-foreground">
+                            Learning Exercise
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        No learning exercise available for this concept yet.
+                      </div>
+                    )}
+                  </section>
+
                   {concept?.links && concept.links.length > 0 && (
-                    <section className="bg-card border border-border rounded-xl p-5">
+                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                         <ExternalLink className="w-4 h-4 text-primary" />
                         Learn More
@@ -238,7 +266,11 @@ const ConceptDetailPage: React.FC = () => {
                             className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
                           >
                             {link.icon_url ? (
-                              <img src={link.icon_url} alt="" className="w-5 h-5 mt-0.5" />
+                              <img
+                                src={link.icon_url}
+                                alt=""
+                                className="w-5 h-5 mt-0.5"
+                              />
                             ) : (
                               <ExternalLink className="w-4 h-4 text-muted-foreground mt-0.5" />
                             )}
@@ -251,23 +283,20 @@ const ConceptDetailPage: React.FC = () => {
                     </section>
                   )}
 
-                  {/* Related Exercises */}
-                  {relatedExercises.length > 0 && (
-                    <section className="bg-card border border-border rounded-xl p-5">
+                  {practiceExercises.length > 0 && (
+                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
                       <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                         <Code2 className="w-4 h-4 text-primary" />
                         Practice Exercises
                       </h3>
                       <div className="space-y-2">
-                        {relatedExercises.map((exercise) => (
+                        {practiceExercises.map((exercise) => (
                           <Link
                             key={exercise.slug}
                             to={`/tracks/${trackSlug}/exercises/concept/${exercise.slug}`}
-                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
+                            className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
                           >
-                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                              <Code2 className="w-4 h-4 text-primary" />
-                            </div>
+                            <ExerciseIcon slug={exercise.slug} size="sm" />
                             <div className="flex-1 min-w-0">
                               <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
                                 {exercise.name}
@@ -279,25 +308,10 @@ const ConceptDetailPage: React.FC = () => {
                       </div>
                     </section>
                   )}
-
-                  {/* Quick Actions */}
-                  <section className="bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 rounded-xl p-5">
-                    <h3 className="font-semibold text-foreground mb-3">Ready to practice?</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Apply what you've learned with hands-on exercises.
-                    </p>
-                    <Button
-                      className="w-full bg-gradient-to-r from-primary to-purple-500 text-white"
-                      onClick={() => navigate(`/tracks/${trackSlug}/exercises`)}
-                    >
-                      Start Practicing
-                    </Button>
-                  </section>
                 </div>
               </div>
             )}
           </div>
-        </div>
       </main>
 
       <Footer />

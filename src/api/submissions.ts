@@ -1,45 +1,44 @@
-import apiClient from './apiClient';
-import { Submission, SubmissionResult } from '@/types';
+import apiClient from "./apiClient";
+import { Submission, SubmissionResult } from "@/types";
 
-// Judge0 language IDs - Supported languages
+// Piston language IDs (same as Judge0 for compatibility)
 const LANGUAGE_IDS: Record<string, number> = {
-  c: 50,           // C (GCC 9.2.0)
-  cpp: 54,         // C++ (GCC 9.2.0)
-  javascript: 63,  // JavaScript (Node.js 12.14.0)
-  python: 71,      // Python 3
-  java: 62,        // Java (OpenJDK 13.0.1)
-  ruby: 72,        // Ruby (2.7.0)
-  typescript: 74,  // TypeScript (3.7.4)
-  go: 60,          // Go (1.13.5)
-  rust: 73,        // Rust (1.40.0)
-  csharp: 51,      // C# (Mono 6.6.0.161)
-  php: 68,         // PHP (7.4.1)
-  swift: 83,       // Swift (5.2.3)
-  kotlin: 78,      // Kotlin (1.3.70)
-  scala: 81,       // Scala (2.13.2)
-  elixir: 57,      // Elixir (1.9.4)
-  haskell: 61,     // Haskell (GHC 8.8.1)
-  lua: 64,         // Lua (5.3.5)
-  r: 80,           // R (4.0.0)
-  perl: 85,        // Perl (5.28.1)
-  clojure: 86,     // Clojure (1.10.1)
-  fsharp: 87,      // F# (.NET Core SDK 3.1.202)
-  ocaml: 65,       // OCaml (4.09.0)
-  erlang: 58,      // Erlang (OTP 22.2)
-  dart: 90,        // Dart (2.19.2)
-  bash: 46,        // Bash (5.0.0)
-  // Languages without direct Judge0 support - use closest alternative or custom
-  julia: 71,       // Fallback to Python for now
-  zig: 50,         // Fallback to C for now
-  nim: 50,         // Fallback to C for now
-  crystal: 72,     // Fallback to Ruby for now
-  powershell: 46,  // Fallback to Bash for now
+  c: 50, // C (GCC)
+  cpp: 54, // C++ (GCC)
+  javascript: 63, // JavaScript (Node.js)
+  python: 71, // Python 3
+  java: 62, // Java (OpenJDK)
+  ruby: 72, // Ruby
+  typescript: 74, // TypeScript
+  go: 60, // Go
+  rust: 73, // Rust
+  csharp: 51, // C#
+  php: 68, // PHP
+  swift: 83, // Swift
+  kotlin: 78, // Kotlin
+  scala: 81, // Scala
+  elixir: 57, // Elixir
+  haskell: 61, // Haskell
+  lua: 64, // Lua
+  r: 80, // R
+  perl: 85, // Perl
+  clojure: 86, // Clojure (fallback to Python)
+  fsharp: 87, // F# (fallback to C#)
+  ocaml: 65, // OCaml (fallback to Haskell)
+  erlang: 58, // Erlang (fallback to Elixir)
+  dart: 90, // Dart
+  bash: 46, // Bash
+  julia: 71, // Julia (fallback to Python)
+  zig: 50, // Zig (fallback to C)
+  nim: 50, // Nim (fallback to C)
+  crystal: 72, // Crystal (fallback to Ruby)
+  powershell: 46, // PowerShell (fallback to Bash)
 };
 
-export interface Judge0Response {
-  message: string;
+export interface PistonResponse {
+  success: boolean;
   submission: {
-    _id: string;
+    _id?: string;
     result: {
       status: string;
       stdout: string | null;
@@ -49,30 +48,39 @@ export interface Judge0Response {
       memory: number;
     };
     passed: boolean;
+    testResults?: Array<{
+      input: string;
+      expectedOutput: string;
+      actualOutput: string;
+      passed: boolean;
+    }>;
   };
 }
 
 export const submissionsApi = {
   /**
-   * Submit code to Judge0 backend
+   * Submit code to Piston backend
    */
   submitCode: async (
     track: string,
     category: string,
     exerciseSlug: string,
     sourceCode: string,
-    language: string
+    language: string,
   ): Promise<{ submission: Submission; result: SubmissionResult }> => {
     const languageId = LANGUAGE_IDS[language] || 63;
 
     try {
-      const response = await apiClient.post<Judge0Response>('/api/submissions', {
-        track,
-        category,
-        exerciseSlug,
-        sourceCode,
-        languageId,
-      });
+      const response = await apiClient.post<PistonResponse>(
+        "/api/submissions",
+        {
+          track,
+          category,
+          exerciseSlug,
+          sourceCode,
+          languageId,
+        },
+      );
 
       const { submission } = response.data;
       const passed = submission.passed;
@@ -81,14 +89,13 @@ export const submissionsApi = {
       // Normalize to our frontend types
       const normalizedResult: SubmissionResult = {
         passed,
-        output: result.stdout || '',
+        output: result.stdout || "",
         error: result.stderr || result.compileOutput || undefined,
         executionTime: parseFloat(result.time) || 0,
-        memory: result.memory,
-        testResults: [
+        testResults: submission.testResults || [
           {
-            input: 'Submission',
-            expectedOutput: 'Accepted',
+            input: "Submission",
+            expectedOutput: "Accepted",
             actualOutput: result.status,
             passed,
           },
@@ -96,12 +103,12 @@ export const submissionsApi = {
       };
 
       const normalizedSubmission: Submission = {
-        _id: submission._id,
-        user: '',
+        _id: submission._id || Date.now().toString(),
+        user: "",
         exercise: exerciseSlug,
         code: sourceCode,
         language,
-        status: passed ? 'passed' : 'failed',
+        status: passed ? "passed" : "failed",
         result: normalizedResult,
         createdAt: new Date().toISOString(),
       };
@@ -109,22 +116,25 @@ export const submissionsApi = {
       return { submission: normalizedSubmission, result: normalizedResult };
     } catch (error: any) {
       // Handle errors gracefully
-      const errorMessage = error.response?.data?.error || error.message || 'Submission failed';
+      const errorMessage =
+        error.response?.data?.error || error.message || "Submission failed";
       throw new Error(errorMessage);
     }
   },
 
   getUserSubmissions: async (userId: string): Promise<Submission[]> => {
-    const response = await apiClient.get<{ success: boolean; data: Submission[] }>(
-      `/api/submissions/user/${userId}`
-    );
+    const response = await apiClient.get<{
+      success: boolean;
+      data: Submission[];
+    }>(`/api/submissions/user/${userId}`);
     return response.data.data || [];
   },
 
   getExerciseSubmissions: async (exerciseId: string): Promise<Submission[]> => {
-    const response = await apiClient.get<{ success: boolean; data: Submission[] }>(
-      `/api/submissions/exercise/${exerciseId}`
-    );
+    const response = await apiClient.get<{
+      success: boolean;
+      data: Submission[];
+    }>(`/api/submissions/exercise/${exerciseId}`);
     return response.data.data || [];
   },
 };

@@ -200,8 +200,8 @@ const ExerciseDetail: React.FC = () => {
 
       {/* Header */}
       <section className="border-b py-8">
-        <div className="container mx-auto px-4 flex gap-5 items-center">
-          <ExerciseIcon slug={exercise.slug} size="lg" />
+        <div className="container mx-auto px-4 flex gap-6 items-center">
+          <ExerciseIcon slug={exercise.slug} size="lg" className="w-20 h-20" />
 
           <div>
             <h1 className="text-3xl font-bold mb-2">{exercise.title}</h1>
@@ -232,7 +232,7 @@ const ExerciseDetail: React.FC = () => {
             <div className="lg:col-span-2 space-y-8">
               {/* Introduction */}
               {cleanedDescription?.trim() && (
-                <div className="bg-card border rounded-xl p-8 overflow-hidden">
+                <div className="bg-background border border-border rounded-2xl p-10 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Introduction</h2>
                   <div className="max-w-none text-muted-foreground leading-relaxed overflow-x-auto">
                     <StyledMarkdown>{cleanedDescription}</StyledMarkdown>
@@ -241,7 +241,7 @@ const ExerciseDetail: React.FC = () => {
               )}
 
               {/* Instructions */}
-              <div className="bg-card border rounded-xl p-8 overflow-hidden">
+              <div className="bg-background border border-border rounded-2xl p-10 shadow-sm">
                 <h2 className="text-xl font-semibold mb-4">Instructions</h2>
                 <div className="max-w-none text-muted-foreground leading-relaxed overflow-x-auto">
                   <StyledMarkdown>
@@ -254,7 +254,7 @@ const ExerciseDetail: React.FC = () => {
 
               {/* External Links (from backend) */}
               {exerciseLinks.length > 0 && (
-                <div className="bg-card border rounded-xl p-8">
+                <div className="bg-background border border-border rounded-2xl p-10 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Learn More</h2>
                   <ul className="space-y-3">
                     {exerciseLinks.map((link, index) => (
@@ -276,7 +276,7 @@ const ExerciseDetail: React.FC = () => {
             </div>
 
             {/* RIGHT – CTA Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:sticky lg:top-24 h-fit">
               <div className="bg-card border rounded-xl p-6 text-center">
                 <div className="flex justify-center gap-2 mb-4">
                   <TrackIcon slug={currentTrackSlug} size="md" />
@@ -298,7 +298,8 @@ const ExerciseDetail: React.FC = () => {
 
                 {isAuthenticated ? (
                   <Button
-                    className="w-full"
+                    size="lg"
+                    className="w-full text-base font-semibold"
                     onClick={() =>
                       navigate(
                         `/tracks/${currentTrackSlug}/exercises/${currentCategory}/${exercise.slug}/edit`

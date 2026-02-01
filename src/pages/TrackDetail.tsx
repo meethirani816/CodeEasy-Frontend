@@ -475,10 +475,10 @@ const TrackDetail: React.FC = () => {
             : "js";
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
       <Navbar />
 
-      <section className="border-b border-border bg-muted/30">
+      <section className="border-b border-border bg-background/80 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <Breadcrumb>
             <BreadcrumbList>
@@ -504,16 +504,16 @@ const TrackDetail: React.FC = () => {
         </div>
       </section>
 
-      <section className="border-b border-border bg-background">
+      <section className="border-b border-border bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <TrackIcon slug={track.slug} size="lg" showImage />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
                   {trackName}
                 </h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1 flex-wrap">
+                <div className="flex items-center gap-5 text-sm text-muted-foreground mt-2 flex-wrap">
                   <div className="flex items-center gap-1.5">
                     <Users className="w-4 h-4" />
                     <span>{formatNumber(studentCount)} students</span>
@@ -551,24 +551,24 @@ const TrackDetail: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-transparent border-b-0 h-auto p-0 gap-0">
+            <TabsList className="bg-transparent h-auto p-0 gap-1">
               <TabsTrigger
                 value="about"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3 text-muted-foreground data-[state=active]:text-foreground"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-5 py-4 text-muted-foreground data-[state=active]:text-foreground"
               >
                 <Info className="w-4 h-4 mr-2" />
                 About
               </TabsTrigger>
               <TabsTrigger
                 value="learn"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3 text-muted-foreground data-[state=active]:text-foreground"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-5 py-4 text-muted-foreground data-[state=active]:text-foreground"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Learn
               </TabsTrigger>
               <TabsTrigger
                 value="practice"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3 text-muted-foreground data-[state=active]:text-foreground"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-5 py-4 text-muted-foreground data-[state=active]:text-foreground"
               >
                 <Dumbbell className="w-4 h-4 mr-2" />
                 Practice
@@ -577,7 +577,7 @@ const TrackDetail: React.FC = () => {
 
             <TabsContent value="about" className="mt-0">
               <section className="flex-1">
-                <div className="bg-muted/20 border-b border-border">
+               <div className="bg-gradient-to-b from-muted/30 to-background border-b border-border">
                   <div
                     className="relative"
                     style={{
@@ -590,7 +590,7 @@ const TrackDetail: React.FC = () => {
                       <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-start">
                         <div className="space-y-6">
                           <div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
+                            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
                               Want to learn and master{" "}
                               <span className="text-primary">{trackName}</span>?
                             </h2>
@@ -613,7 +613,7 @@ const TrackDetail: React.FC = () => {
                                 onClick={() =>
                                   navigate(`/tracks/${slug}/exercises`)
                                 }
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                                className="border-border text-foreground hover:bg-muted rounded-full"
                               >
                                 <CheckCircle className="w-5 h-5 mr-2" />
                                 Continue Learning
@@ -623,7 +623,7 @@ const TrackDetail: React.FC = () => {
                                 size="lg"
                                 onClick={handleJoinTrack}
                                 disabled={isJoining}
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 rounded-full shadow-lg shadow-primary/25"
                               >
                                 {isJoining ? (
                                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -644,7 +644,7 @@ const TrackDetail: React.FC = () => {
                             </Button>
                           </div>
 
-                          <div className="bg-background/70 backdrop-blur rounded-xl border border-border p-6">
+                          <div className="bg-background rounded-2xl border border-border p-8 shadow-sm">
                             <h3 className="text-2xl md:text-3xl font-bold text-foreground">
                               About {trackName}
                             </h3>
@@ -706,7 +706,7 @@ const TrackDetail: React.FC = () => {
                     {features.map((feature, idx) => (
                       <div
                         key={idx}
-                        className="bg-background border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition"
+                        className="bg-background border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
                       >
                         <div className="flex items-start gap-3">
                           <div className="mt-1 text-primary opacity-90">
@@ -745,7 +745,7 @@ const TrackDetail: React.FC = () => {
                       <Link
                         key={concept.slug}
                         to={`/tracks/${slug}/concepts/${concept.slug}`}
-                        className="block bg-background border border-border rounded-xl p-5 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+                        className="block bg-background border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -776,7 +776,7 @@ const TrackDetail: React.FC = () => {
                       <Link
                         key={exercise.slug}
                         to={`/tracks/${slug}/exercises/concept/${exercise.slug}`}
-                        className="block bg-background border border-border rounded-xl p-5 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+                        className="bg-background border border-border rounded-2xl p-6 shadow-sm hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all group"
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold">
@@ -932,7 +932,7 @@ const TrackDetail: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-16">
+                  <div className="text-center py-20">
                     <Dumbbell className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
                       No practice exercises available yet.
