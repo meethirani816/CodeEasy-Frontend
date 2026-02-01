@@ -163,7 +163,7 @@ const Index: React.FC = () => {
         <div className="absolute left-10 top-24 h-7 w-7 rotate-45 border-2 border-primary/30 hidden md:block" />
         <div className="absolute right-14 top-28 h-7 w-7 rounded-sm border-2 border-yellow-400/70 hidden md:block" />
         <div className="absolute left-24 top-44 h-2 w-7 rotate-45 bg-primary/30 rounded-full hidden md:block" />
-        <div className="absolute right-24 top-56 grid grid-cols-3 gap-1 opacity-40 hidden md:grid">
+        <div className="absolute right-24 top-56 hidden md:grid grid-cols-3 gap-1 opacity-40">
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
