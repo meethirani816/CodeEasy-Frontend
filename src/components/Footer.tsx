@@ -1,42 +1,60 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Code2, Github, Twitter } from 'lucide-react';
+import { WavyLine } from "@/components/ui/decorative-elements";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-secondary text-secondary-foreground py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-[#130b43] text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
-          <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 font-bold text-xl mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <div className="md:col-span-2 space-y-4">
+            <Link
+              to="/"
+              className="flex items-center gap-3 text-xl font-bold"
+            >
+              <div className="w-9 h-9 bg-gradient-to-br from-primary to-purple-500 rounded-xl flex items-center justify-center shadow-sm">
                 <Code2 className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span>CodeEasy</span>
+              <span className="tracking-tight">CodeEasy<WavyLine className="mt-1" color="accent" /></span>
             </Link>
-            <p className="text-secondary-foreground/70 max-w-md">
-              Develop fluency in programming languages with practice exercises. 
-              Master your skills with our carefully crafted learning paths.
+
+            <p className="text-muted-foreground max-w-md leading-relaxed">
+              Develop real fluency in programming languages through hands-on
+              practice. Learn by doing, progress with confidence.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
+            <h4 className="text-sm font-semibold uppercase tracking-wide mb-4 text-white">
+              Quick Links
+              <WavyLine className="mt-1" color="accent" />
+            </h4>
+            
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/tracks" className="text-secondary-foreground/70 hover:text-secondary-foreground transition-colors">
+                <Link
+                  to="/tracks"
+                  className="text-white hover:text-foreground transition-colors"
+                >
                   All Tracks
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="text-secondary-foreground/70 hover:text-secondary-foreground transition-colors">
+                <Link
+                  to="/dashboard"
+                  className="text-white hover:text-foreground transition-colors"
+                >
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/signup" className="text-secondary-foreground/70 hover:text-secondary-foreground transition-colors">
+                <Link
+                  to="/signup"
+                  className="text-white hover:text-foreground transition-colors"
+                >
                   Get Started
                 </Link>
               </li>
@@ -45,17 +63,24 @@ const Footer: React.FC = () => {
 
           {/* Social */}
           <div>
-            <h4 className="font-semibold mb-4">Connect</h4>
-            <div className="flex gap-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wide mb-4 text-white">
+              Connect
+              <WavyLine className="mt-1" color="accent" />
+            </h4>
+
+            <div className="flex gap-3">
               <a
                 href="#"
-                className="w-10 h-10 bg-secondary-foreground/10 rounded-lg flex items-center justify-center hover:bg-secondary-foreground/20 transition-colors"
+                aria-label="GitHub"
+                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-all"
               >
                 <Github className="w-5 h-5" />
               </a>
+
               <a
                 href="#"
-                className="w-10 h-10 bg-secondary-foreground/10 rounded-lg flex items-center justify-center hover:bg-secondary-foreground/20 transition-colors"
+                aria-label="Twitter"
+                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-all"
               >
                 <Twitter className="w-5 h-5" />
               </a>
@@ -63,8 +88,9 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-secondary-foreground/10 mt-8 pt-8 text-center text-secondary-foreground/50">
-          <p>&copy; {new Date().getFullYear()} CodeEasy. All rights reserved.</p>
+        {/* Bottom */}
+        <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} CodeEasy. Built with ❤️ for developers.
         </div>
       </div>
     </footer>

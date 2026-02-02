@@ -28,17 +28,17 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, isCompleted = fal
   return (
     <div
       onClick={handleClick}
-      className={`bg-card rounded-lg p-4 border border-border transition-all duration-200 ${
-        isLocked
+      className={`group bg-card rounded-xl p-6 border border-border transition-all duration-200
+        ${isLocked
           ? 'opacity-60 cursor-not-allowed'
-          : 'cursor-pointer hover:shadow-md hover:border-primary/30'
-      }`}
+          : 'cursor-pointer hover:shadow-xl hover:border-primary/30 hover:-translate-y-0.5'
+        }`}
     >
-      <div className="flex items-center gap-4">
-        {/* Status Icon */}
-        <div className="shrink-0">
+      <div className="flex items-start gap-4">
+        {/* Left Status Icon */}
+        <div className="mt-1 shrink-0">
           {isCompleted ? (
-            <CheckCircle className="w-6 h-6 text-success" />
+            <CheckCircle className="w-6 h-6 text-green-500" />
           ) : isLocked ? (
             <Lock className="w-6 h-6 text-muted-foreground" />
           ) : (
@@ -46,25 +46,52 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, isCompleted = fal
           )}
         </div>
 
-        {/* Content */}
+        {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-medium text-card-foreground">{exercise.title}</h4>
+          {/* Title */}
+          <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors truncate">
+            {exercise.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+            {exercise.description}
+          </p>
+
+          {/* Badges */}
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
             <Badge
               variant="outline"
-              className={`text-xs ${difficultyColors[exercise.difficulty]}`}
+              className={`text-xs capitalize ${
+                difficultyColors[exercise.difficulty]
+              }`}
             >
               {exercise.difficulty}
             </Badge>
+
+            {isCompleted && (
+              <Badge className="bg-green-500/10 text-green-600 text-xs">
+                Completed
+              </Badge>
+            )}
+
+            {!isCompleted && !isLocked && (
+              <Badge className="bg-blue-500/10 text-blue-600 text-xs">
+                Available
+              </Badge>
+            )}
+
+            {isLocked && (
+              <Badge className="bg-muted text-muted-foreground text-xs">
+                Locked
+              </Badge>
+            )}
           </div>
-          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
-            {exercise.description}
-          </p>
         </div>
 
         {/* Arrow */}
         {!isLocked && (
-          <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground mt-2 shrink-0 group-hover:text-primary transition-colors" />
         )}
       </div>
     </div>

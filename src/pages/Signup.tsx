@@ -81,33 +81,34 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-muted/30">
-      {/* Header */}
-      <header className="py-6 px-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl w-fit mx-auto">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-muted/40 via-background to-muted/30">
+      {/* Logo */}
+      <header className="py-6 flex justify-center">
+        <Link to="/" className="flex items-center gap-3 text-xl font-bold">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-500 rounded-xl flex items-center justify-center shadow-md">
             <Code2 className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span>CodeEasy</span>
+          <span className="tracking-tight">CodeEasy</span>
         </Link>
       </header>
 
-      {/* Signup Form */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-12">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Create Your Account</CardTitle>
-            <CardDescription>
-              Join CodeEasy and start your programming journey
+      {/* Form */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-1">
+        <Card className="w-full max-w-md border-border bg-card/80 backdrop-blur shadow-xl">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-2xl font-bold">
+              Create your account
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Start your coding journey with confidence
             </CardDescription>
           </CardHeader>
+
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label>Full Name</Label>
                 <Input
-                  id="name"
-                  type="text"
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -116,9 +117,8 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>Email</Label>
                 <Input
-                  id="email"
                   type="email"
                   placeholder="you@example.com"
                   value={email}
@@ -128,11 +128,10 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label>Password</Label>
                 <div className="relative">
                   <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -143,19 +142,35 @@ const Signup: React.FC = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
+
                 {password && (
-                  <div className="space-y-1 mt-2">
-                    {passwordRequirements.map((req, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
+                  <div className="mt-3 space-y-1">
+                    {passwordRequirements.map((req, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-xs"
+                      >
                         <Check
                           className={`w-4 h-4 ${
-                            req.met ? 'text-success' : 'text-muted-foreground'
+                            req.met
+                              ? "text-success"
+                              : "text-muted-foreground"
                           }`}
                         />
-                        <span className={req.met ? 'text-success' : 'text-muted-foreground'}>
+                        <span
+                          className={
+                            req.met
+                              ? "text-success"
+                              : "text-muted-foreground"
+                          }
+                        >
                           {req.label}
                         </span>
                       </div>
@@ -165,10 +180,9 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label>Confirm Password</Label>
                 <Input
-                  id="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -176,24 +190,27 @@ const Signup: React.FC = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button className="w-full btn-gradient" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
                   </>
                 ) : (
-                  'Sign Up'
+                  "Create account"
                 )}
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
-              <Link to="/login" className="text-primary hover:underline font-medium">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-primary font-medium hover:underline"
+              >
                 Log in
               </Link>
-            </div>
+            </p>
           </CardContent>
         </Card>
       </div>
