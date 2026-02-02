@@ -200,7 +200,7 @@ const ExerciseDetail: React.FC = () => {
               <BreadcrumbSeparator>/</BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-foreground font-medium">
-                  {exercise.title}
+                  {formatExerciseTitle(exercise.title)}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
