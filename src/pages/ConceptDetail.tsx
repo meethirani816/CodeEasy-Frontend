@@ -141,35 +141,39 @@ const ConceptDetailPage: React.FC = () => {
       </section>
 
       <main className="flex-1 py-10">
-        <div className="max-w-7xl mx-auto px-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <span className="text-3xl font-bold text-foreground">
-                  {badgeText}
-                </span>
-              </div>
+        <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center gap-5 mb-8">
+  {/* Concept Badge */}
+  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+    <span className="text-2xl font-serif text-foreground">
+      {badgeText}
+    </span>
+  </div>
 
-              <div className="min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground mb-2">
-                    {formattedConceptName}
-                  </h1>
-                  <span className="text-muted-foreground">in</span>
+  {/* Title Block */}
+  <div className="min-w-0">
+    <div className="flex items-center gap-2 flex-wrap">
+      <h1 className="text-3xl md:text-4xl font-serif tracking-tight text-foreground leading-tight">
+        {formattedConceptName}
+      </h1>
 
-                  <span className="inline-flex items-center gap-2">
-                    <TrackIcon slug={trackSlug || ""} size="sm" showImage />
-                    <span className="text-sm text-muted-foreground">
-                      {trackName}
-                    </span>
-                  </span>
-                </div>
+      <span className="text-muted-foreground text-lg">in</span>
 
-                <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
-                  <span>↔</span>
-                  <span>{exerciseCount} exercises</span>
-                </div>
-              </div>
-            </div>
+      <span className="inline-flex items-center gap-2">
+        <TrackIcon slug={trackSlug || ""} size="sm" showImage />
+        <span className="text-base text-muted-foreground font-medium">
+          {trackName}
+        </span>
+      </span>
+    </div>
+
+    <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
+      <span className="opacity-70">↔</span>
+      <span>{exerciseCount} exercises</span>
+    </div>
+  </div>
+</div>
+
 
             {error ? (
               <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">

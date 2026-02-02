@@ -16,7 +16,16 @@ import {
   BookOpen,
   Trophy,
 } from "lucide-react";
-import heroIllustration from "@/assets/hero-illustration.png";
+import heroIllustration2 from "@/assets/hero-illustration2.jpg";
+import { WavyLine, FloatingShape, SectionIcon } from "@/components/ui/decorative-elements";
+
+const languageBadges = [
+  { name: "C#", color: "#68217A" },
+  { name: "Java", color: "#EA2D2E" },
+  { name: "Python", color: "#3776AB" },
+  { name: "Ruby", color: "#CC342D" },
+  { name: "Elixir", color: "#4B275F" },
+];
 const Index: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +55,39 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
+      {/* background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/20" />
 
+      {/* decorative shapes */}
+      <div className="absolute left-10 top-24 h-7 w-7 rotate-45 border-2 border-primary/30 hidden md:block" />
+      <div className="absolute right-14 top-28 h-7 w-7 rounded-sm border-2 border-yellow-400/70 hidden md:block" />
+      <div className="absolute left-24 top-44 h-2 w-7 rotate-45 bg-primary/30 rounded-full hidden md:block" />
+      <div className="absolute right-24 top-56 hidden md:grid grid-cols-3 gap-1 opacity-40">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-1 w-1 rounded-full bg-muted-foreground/60"
+          />
+        ))}
+      </div>
+      <div className="absolute right-10 top-44 h-0 w-0 border-l-[10px] border-r-[10px] border-t-[16px] border-l-transparent border-r-transparent border-t-primary/30 rotate-12 hidden md:block" />
+      {/* Enhanced Hexagon pattern background */}
+      <div className="absolute inset-0 opacity-[0.07]">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="hexagons" width="56" height="48.5" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
+              <polygon
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="1"
+                points="28,0 56,14 56,42 28,56 0,42 0,14"
+                transform="translate(0,-4)"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hexagons)" />
+        </svg>
+      </div>
       {/* Hero Section with Purple Gradient */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10" />
@@ -79,7 +120,7 @@ const Index: React.FC = () => {
                   <Button
                     size="lg"
                     onClick={() => navigate("/tracks")}
-                    className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
+                    className="bg-gradient-to-br from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                   >
                     Explore Languages
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -89,7 +130,7 @@ const Index: React.FC = () => {
                     <Button
                       size="lg"
                       onClick={() => navigate("/signup")}
-                      className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
+                      className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
                     >
                       Sign up for free
                     </Button>
@@ -97,7 +138,7 @@ const Index: React.FC = () => {
                       size="lg"
                       variant="outline"
                       onClick={() => navigate("/tracks")}
-                      className="border-border text-foreground hover:bg-muted px-8 py-6 text-lg font-medium rounded-full transition"
+                      className="border-border text-foreground  hover:to-purple-500/90 text-black px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                     >
                       Explore languages
                     </Button>
@@ -106,7 +147,7 @@ const Index: React.FC = () => {
               </div>
 
               {/* Info box */}
-              <div className="mt-8 flex items-center gap-4 p-5 bg-card/80 backdrop-blur border border-border rounded-2xl">
+              <div className="mt-8 flex items-center gap-4 p-5 bg-card/80 backdrop-blur border border-border rounded-2xl transition-all duration-300 -translate-y-1 shadow-lg">
                 <div className="flex items-center gap-2 text-foreground font-semibold">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-500 rounded-lg flex items-center justify-center">
                     <Code2 className="w-4 h-4 text-white" />
@@ -124,7 +165,7 @@ const Index: React.FC = () => {
             <div className="relative animate-slide-up stagger-2">
               <div className="relative">
                 <img
-                  src={heroIllustration}
+                  src={heroIllustration2}
                   alt="Three diverse people collaborating on code together"
                   className="w-full max-w-md lg:max-w-lg mx-auto drop-shadow-xl"
                 />
@@ -153,74 +194,160 @@ const Index: React.FC = () => {
         </div>
         <div className="absolute right-10 top-44 h-0 w-0 border-l-[10px] border-r-[10px] border-t-[16px] border-l-transparent border-r-transparent border-t-primary/30 rotate-12 hidden md:block" />
 
-        <div className="container mx-auto px-4 relative">
-          {/* Title */}
-          <div className="text-center mb-14">
-            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card shadow-sm">
-              <Grid3X3 className="h-7 w-7 text-primary" />
-            </div>
+        {/* Floating decorative elements */}
+        <div className="absolute top-20 left-[10%] opacity-60">
+          <FloatingShape variant="diamond" color="hsl(180 70% 50%)" />
+        </div>
+        <div className="absolute top-32 right-[15%] opacity-60">
+          <FloatingShape variant="square" color="hsl(50 100% 50%)" />
+        </div>
+        <div className="absolute bottom-40 left-[8%] opacity-40">
+          <FloatingShape variant="lines" />
+        </div>
+        <div className="absolute top-1/2 right-[5%] opacity-40">
+          <FloatingShape variant="dots" />
+        </div>
+        <div className="absolute bottom-20 right-[12%] opacity-50">
+          <FloatingShape variant="triangle" color="hsl(38 92% 50%)" />
+        </div>
 
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-              Explore and get fluent in
-              <br />
-              <span className="text-foreground">
-                {totalTracks || 4} programming languages
-              </span>
-            </h2>
+        <div className="container relative">
+          {/* Section header */}
+          <div className="text-center mb-16">
+            <SectionIcon>
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-primary">
+                <path
+                  d="M12 2L2 7L12 12L22 7L12 2Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                <path
+                  d="M2 17L12 22L22 17"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                <path
+                  d="M2 12L12 17L22 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
+            </SectionIcon>
 
-            {/* small zigzag line under heading (like Exercism) */}
-            <div className="mt-6 flex justify-center">
-              <div className="h-1.5 w-16 border-t-4 border-primary/50 rounded-full" />
-            </div>
-          </div>
+            <div className="container mx-auto px-4 relative">
+              {/* Title */}
+              <div className="text-center mb-14">
 
-          {/* Track icons grid (Exercism style) */}
-          <div className="mx-auto max-w-6xl">
-            {/* 2 cols mobile, 3 sm, 4 md, 6 lg (like Exercism layout) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 md:gap-10">
-              {tracks.map((track) => (
-                <Link
-                  key={track._id}
-                  to={`/tracks/${track.slug}`}
-                  className="group flex flex-col items-center text-center transition-all duration-300"
+
+                <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+                  Explore and <span className="relative inline-block">
+                    <span className="relative z-10">get fluent</span>
+                    <span className="absolute bottom-1 left-0 w-full h-3 bg-[hsl(50_100%_70%)] -z-0" />
+                  </span> in
+                  <br />
+                  <span className="text-foreground">
+                    {totalTracks || 4} programming languages
+                  </span>
+                </h2>
+                {/* small zigzag line under heading (like Exercism) */}
+                <WavyLine className="mx-auto mt-6" color="primary" />
+              </div>
+
+              {/* Track icons grid (Exercism style) */}
+              <div className="mx-auto max-w-6xl">
+                {/* 2 cols mobile, 3 sm, 4 md, 6 lg (like Exercism layout) */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 md:gap-10">
+                  {tracks.map((track) => (
+                    <Link
+                      key={track._id}
+                      to={`/tracks/${track.slug}`}
+                      className="group flex flex-col items-center text-center transition-all duration-300"
+                    >
+                      {/* icon */}
+                      <div className="relative transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105">
+                        <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition" />
+                        <TrackIcon slug={track.slug} size="xl" showImage />
+                      </div>
+
+                      {/* name */}
+                      <div className="mt-3 font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {track.name}
+                      </div>
+
+                      {/* subtext (replace with students later if you have) */}
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {track.exerciseCount
+                          ? `${track.exerciseCount.toLocaleString()} exercises`
+                          : "Start learning"}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* pill button bottom */}
+              <div className="mt-14 flex justify-center">
+                <Button
+                  onClick={() => navigate("/tracks")}
+                  className="bg-gradient-to-br from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                 >
-                  {/* icon */}
-                  <div className="relative transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-105">
-                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition" />
-                    <TrackIcon slug={track.slug} size="xl" showImage />
-                  </div>
-
-                  {/* name */}
-                  <div className="mt-3 font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {track.name}
-                  </div>
-
-                  {/* subtext (replace with students later if you have) */}
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {track.exerciseCount
-                      ? `${track.exerciseCount.toLocaleString()} exercises`
-                      : "Start learning"}
-                  </div>
-                </Link>
-              ))}
+                  See all {totalTracks || 4} Language Tracks
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
-
-          {/* pill button bottom */}
-          <div className="mt-14 flex justify-center">
-            <Button
-              onClick={() => navigate("/tracks")}
-              className="rounded-full px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
-            >
-              See all {totalTracks || 4} Language Tracks
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-24 bg-gradient-to-b relative overflow-hidden">
+      {/* Floating decorative elements */}
+      <div className="absolute top-20 left-[5%] opacity-60">
+        <FloatingShape variant="diamond" color="hsl(180 70% 50%)" />
+      </div>
+      <div className="absolute top-40 right-[8%] opacity-60">
+        <FloatingShape variant="square" color="hsl(50 100% 50%)" />
+      </div>
+      <div className="absolute bottom-32 left-[12%] opacity-40">
+        <FloatingShape variant="lines" />
+      </div>
+      <div className="absolute top-1/3 right-[3%] opacity-40">
+        <FloatingShape variant="dots" />
+      </div>
+      <div className="absolute bottom-20 right-[15%] opacity-50">
+        <FloatingShape variant="triangle" color="hsl(38 92% 50%)" />
+      </div>
+
+      {/* Dotted curved line decoration */}
+      <svg 
+        className="absolute top-1/4 right-1/3 w-48 h-48 opacity-30 pointer-events-none"
+        viewBox="0 0 200 200"
+      >
+        <path 
+          d="M 20 100 Q 100 20 180 100" 
+          fill="none" 
+          stroke="hsl(var(--muted-foreground))" 
+          strokeWidth="2"
+          strokeDasharray="6 6"
+        />
+      </svg>
+      {/* Dotted curved line decoration */}
+      <svg 
+        className="absolute top-1/4 left-1/3 w-48 h-48 opacity-30 pointer-events-none"
+        viewBox="0 0 200 200"
+      >
+        <path 
+          d="M 20 100 Q 100 20 180 100" 
+          fill="none" 
+          stroke="hsl(var(--muted-foreground))" 
+          strokeWidth="2"
+          strokeDasharray="6 6"
+        />
+      </svg>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -237,8 +364,8 @@ const Index: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
-                <BookOpen className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-white-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+                <BookOpen className="w-8 h-8 text-black" />
               </div>
               <div className="text-sm font-medium text-primary mb-2">
                 Step 1
@@ -253,8 +380,8 @@ const Index: React.FC = () => {
             </div>
 
             <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
-                <Code2 className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-white-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+                <Code2 className="w-8 h-8 text-black" />
               </div>
               <div className="text-sm font-medium text-primary mb-2">
                 Step 2
@@ -269,8 +396,8 @@ const Index: React.FC = () => {
             </div>
 
             <div className="text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
-                <Trophy className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-white-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+                <Trophy className="w-8 h-8 text-black" />
               </div>
               <div className="text-sm font-medium text-primary mb-2">
                 Step 3
@@ -289,7 +416,7 @@ const Index: React.FC = () => {
             <Button
               size="lg"
               onClick={() => navigate(isAuthenticated ? "/tracks" : "/signup")}
-              className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 shadow-lg shadow-primary/25"
+              className="bg-gradient-to-br from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
             >
               Start Learning Now
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -299,7 +426,37 @@ const Index: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section className="py-24 bg-gradient-to-b relative overflow-hidden">
+      {/* Floating decorative elements */}
+      <div className="absolute top-20 left-[5%] opacity-60">
+        <FloatingShape variant="diamond" color="hsl(180 70% 50%)" />
+      </div>
+      <div className="absolute top-40 right-[8%] opacity-60">
+        <FloatingShape variant="square" color="hsl(50 100% 50%)" />
+      </div>
+      <div className="absolute bottom-32 left-[12%] opacity-40">
+        <FloatingShape variant="lines" />
+      </div>
+      <div className="absolute top-1/3 right-[3%] opacity-40">
+        <FloatingShape variant="dots" />
+      </div>
+      <div className="absolute bottom-20 right-[15%] opacity-50">
+        <FloatingShape variant="triangle" color="hsl(38 92% 50%)" />
+      </div>
+
+      {/* Dotted curved line decoration */}
+      <svg 
+        className="absolute top-1/4 right-1/3 w-48 h-48 opacity-30 pointer-events-none"
+        viewBox="0 0 200 200"
+      >
+        <path 
+          d="M 20 100 Q 100 20 180 100" 
+          fill="none" 
+          stroke="hsl(var(--muted-foreground))" 
+          strokeWidth="2"
+          strokeDasharray="6 6"
+        />
+      </svg>
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div>
@@ -407,7 +564,7 @@ const Index: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-secondary via-secondary to-primary/20">
+      <section className="py-16 md:py-20 bg-[#271b72] text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
             Ready to start your coding journey?
@@ -421,7 +578,7 @@ const Index: React.FC = () => {
             <Button
               size="lg"
               onClick={() => navigate("/signup")}
-              className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white text-lg px-8 py-6 shadow-lg shadow-primary/25"
+              className="bg-gradient-to-br from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-8 py-6 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
             >
               Get Started for Free
               <ArrowRight className="ml-2 w-5 h-5" />

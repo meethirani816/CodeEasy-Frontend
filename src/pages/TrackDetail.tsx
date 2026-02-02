@@ -508,7 +508,7 @@ const TrackDetail: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <TrackIcon slug={track.slug} size="lg" showImage />
+              <TrackIcon slug={track.slug} size="xl" showImage />
               <div>
                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
                   {trackName}
@@ -527,23 +527,6 @@ const TrackDetail: React.FC = () => {
                     <span>{exerciseCount} exercises</span>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full border-2 border-background flex items-center justify-center"
-                  >
-                    <Sparkles className="w-3 h-3 text-primary" />
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                <div className="font-medium text-foreground">Contributors</div>
-                <div>Building {trackName}</div>
               </div>
             </div>
           </div>
@@ -613,7 +596,7 @@ const TrackDetail: React.FC = () => {
                                 onClick={() =>
                                   navigate(`/tracks/${slug}/exercises`)
                                 }
-                                className="border-border text-foreground hover:bg-muted rounded-full"
+                                className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-5 py-5 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
                               >
                                 <CheckCircle className="w-5 h-5 mr-2" />
                                 Continue Learning
@@ -623,7 +606,7 @@ const TrackDetail: React.FC = () => {
                                 size="lg"
                                 onClick={handleJoinTrack}
                                 disabled={isJoining}
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 rounded-full shadow-lg shadow-primary/25"
+                                className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-5 py-5 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
                               >
                                 {isJoining ? (
                                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -638,7 +621,7 @@ const TrackDetail: React.FC = () => {
                               size="lg"
                               variant="outline"
                               onClick={() => setActiveTab("learn")}
-                              className="border-border text-foreground hover:bg-muted"
+                              className="border-border text-foreground  hover:to-purple-500/90 text-black px-4 py-4 text-lg font-medium rounded-full shadow-xl shadow-primary/30 hover:scale-[1.03] transition"
                             >
                               Explore concepts
                             </Button>
@@ -860,7 +843,7 @@ const TrackDetail: React.FC = () => {
                   </div>
                   <Button
                     onClick={() => navigate(`/tracks/${slug}/exercises`)}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition"
                   >
                     View All Exercises
                   </Button>
