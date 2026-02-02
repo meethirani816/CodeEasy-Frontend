@@ -123,8 +123,8 @@ const ExerciseDetail: React.FC = () => {
     currentTrackSlug === "c"
       ? "C"
       : currentTrackSlug === "javascript"
-      ? "JavaScript"
-      : currentTrackSlug.charAt(0).toUpperCase() + currentTrackSlug.slice(1);
+        ? "JavaScript"
+        : currentTrackSlug.charAt(0).toUpperCase() + currentTrackSlug.slice(1);
 
   const iconConfig = getTrackConfig(currentTrackSlug);
 
@@ -135,7 +135,7 @@ const ExerciseDetail: React.FC = () => {
 
   // Get links from exercise if available (from backend)
   const exerciseLinks: ExerciseLink[] = (exercise as any).links || [];
-  
+
   // Add source link if available
   if ((exercise as any).source_url) {
     exerciseLinks.push({
@@ -143,6 +143,16 @@ const ExerciseDetail: React.FC = () => {
       description: (exercise as any).source || 'Source'
     });
   }
+  //exercise title formatter
+  const formatExerciseTitle = (title: string) => {
+    if (!title) return '';
+    return title
+      .replace(/-/g, ' ')              // remove dashes
+      .replace(/\s+/g, ' ')            // normalize spaces
+      .trim()
+      .replace(/^./, (c) => c.toUpperCase()); // capitalize first letter
+  };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -190,7 +200,7 @@ const ExerciseDetail: React.FC = () => {
               <BreadcrumbSeparator>/</BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-foreground font-medium">
-                  {exercise.title}
+                  {formatExerciseTitle(exercise.title)}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -199,12 +209,15 @@ const ExerciseDetail: React.FC = () => {
       </section>
 
       {/* Header */}
+
       <section className="border-b py-8">
         <div className="container mx-auto px-4 flex gap-6 items-center">
           <ExerciseIcon slug={exercise.slug} size="lg" className="w-20 h-20" />
 
           <div>
-            <h1 className="text-3xl font-bold mb-2">{exercise.title}</h1>
+            <h1 className="text-3xl font-serif mb-2">
+              {formatExerciseTitle(exercise.title)}
+            </h1>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
               {exercise.exerciseType === "tutorial"
                 ? "Tutorial Exercise"
@@ -287,7 +300,7 @@ const ExerciseDetail: React.FC = () => {
                 </div>
 
                 <h3 className="font-bold text-lg mb-2">
-                  Ready to start {exercise.title}?
+                  Ready to start {formatExerciseTitle(exercise.title)}?
                 </h3>
 
                 <p className="text-sm text-muted-foreground mb-6">
