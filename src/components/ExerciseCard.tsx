@@ -28,7 +28,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, isCompleted = fal
   return (
     <div
       onClick={handleClick}
-      className={`group bg-card rounded-xl p-6 border border-border transition-all duration-200
+      className={`className="bg-background border border-border rounded-xl p-6 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all group relative"
         ${isLocked
           ? 'opacity-60 cursor-not-allowed'
           : 'cursor-pointer hover:shadow-xl hover:border-primary/30 hover:-translate-y-0.5'
@@ -62,9 +62,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, isCompleted = fal
           <div className="flex items-center gap-2 mt-3 flex-wrap">
             <Badge
               variant="outline"
-              className={`text-xs capitalize ${
-                difficultyColors[exercise.difficulty]
-              }`}
+              className={`text-xs capitalize ${difficultyColors[exercise.difficulty]
+                }`}
             >
               {exercise.difficulty}
             </Badge>

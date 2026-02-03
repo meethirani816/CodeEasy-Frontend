@@ -510,7 +510,7 @@ const TrackDetail: React.FC = () => {
             <div className="flex items-center gap-4">
               <TrackIcon slug={track.slug} size="xl" showImage />
               <div>
-                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                <h1 className="text-2xl md:text-3xl font-serif tracking-tight text-foreground">
                   {trackName}
                 </h1>
                 <div className="flex items-center gap-5 text-sm text-muted-foreground mt-2 flex-wrap">
