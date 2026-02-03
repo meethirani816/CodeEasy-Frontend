@@ -224,7 +224,7 @@ const Exercises: React.FC = () => {
 
       {/* Breadcrumb */}
       <section className="border-b border-border bg-muted/30">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6 py-3">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -252,16 +252,44 @@ const Exercises: React.FC = () => {
 
       {/* Track Header */}
       <section className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+            {/* Left */}
             <div className="flex items-center gap-4">
-              <TrackIcon slug={slug || ''} size="lg" showImage />
+              <TrackIcon slug={slug || ''} size="xl" showImage />
+
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{track?.name || slug}</h1>
+                <h1 className="text-3xl font-serif tracking-tight">
+                  {track?.name}
+                </h1>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    {formatNumber(track?.studentCount || 0)} students
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Dumbbell className="w-4 h-4" />
+                    {exercises.length} exercises
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Right CTA */}
+            {!isAuthenticated && (
+              <Button
+                onClick={() => navigate('/signup')}
+                className="bg-primary hover:bg-primary/90 px-6 rounded-full shadow-md"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Join Track
+              </Button>
+            )}
           </div>
         </div>
+
 
       </section>
 
@@ -285,133 +313,114 @@ const Exercises: React.FC = () => {
       {/* Main Content */}
       {!isLoading && !error && (
         <>
-          {/* Join Track Banner */}
-          {!isAuthenticated && (
-            <section className="bg-muted border-b border-border">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex items-center justify-between py-4">
-                  <div className="flex items-center gap-4">
-                    <TrackIcon slug={slug || ''} size="lg" showImage />
-                    <div>
-                      <h2 className="text-lg font-semibold text-foreground">
-                        Practice exercises in {track?.name}
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Learn and practice {track?.name} by completing exercises that explore different concepts and ideas.
-                      </p>
+          {/* Search and Filters */}
+          <section className="py-0">
+            <div className="max-w-7xl mx-auto px-6">
+              <section className="sticky top-[64px] z-20 bg-background/90 backdrop-blur border-b border-border">
+                <div className="max-w-7xl mx-auto px-6 py-4 space-y-4">
+                  {/* Category Tabs */}
+                  {categories.length > 1 && (
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition
+              ${selectedCategory === cat
+                              ? 'bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition'
+                              : 'border-border text-foreground hover:to-purple-500/90 text-black px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition'
+                            }`}
+                        >
+                          {cat.replace(/-/g, ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Search + Status Filters */}
+                  <div className="flex flex-col md:flex-row md:items-center gap-4">
+
+                    {/* Search */}
+                    <div className="relative max-w-sm w-full">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search exercises"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 rounded-full"
+                      />
+                    </div>
+
+                    {/* Status Filters */}
+                    <div className="flex flex-wrap gap-2">
+
+                      {/* All */}
+                      <button
+                        onClick={() => setActiveFilter('all')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                            ${activeFilter === 'all'
+                            ? 'bg-primary/10 text-primary border border-primary/30'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                          }`}
+                      >
+                        All
+                        <Badge variant="outline" className="bg-background/50">
+                          {exercises.length}
+                        </Badge>
+                      </button>
+
+                      {/* Completed */}
+                      <button
+                        onClick={() => setActiveFilter('completed')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                            ${activeFilter === 'completed'
+                            ? 'bg-green-500/10 text-green-700 border border-green-200'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                          }`}
+                      >
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        Completed
+                        <Badge variant="outline" className="bg-background/50">
+                          {completedCount}
+                        </Badge>
+                      </button>
+
+                      {/* In Progress */}
+                      <button
+                        onClick={() => setActiveFilter('progress')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                            ${activeFilter === 'progress'
+                            ? 'bg-blue-500/10 text-blue-700 border border-blue-200'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                          }`}
+                      >
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        In Progress
+                        <Badge variant="outline" className="bg-background/50">
+                          {inProgressCount}
+                        </Badge>
+                      </button>
+
+                      {/* Available */}
+                      <button
+                        onClick={() => setActiveFilter('available')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                            ${activeFilter === 'available'
+                            ? 'bg-muted text-foreground border border-border'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                          }`}
+                      >
+                        <Circle className="w-4 h-4" />
+                        Available
+                        <Badge variant="outline" className="bg-background/50">
+                          {availableCount > 0 ? availableCount : exercises.length}
+                        </Badge>
+                      </button>
+
                     </div>
                   </div>
-
-                  <Button
-                    onClick={() => navigate('/signup')}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Join The {track?.name} Track
-                  </Button>
                 </div>
-              </div>
-            </section>
-          )}
-
-          {/* Search and Filters */}
-          <section className="py-6">
-            <div className="max-w-7xl mx-auto px-6">
-              {/* Category tabs */}
-              {categories.length > 1 && (
-                <div className="flex flex-wrap items-center gap-3 mb-8">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all capitalize ${selectedCategory === cat
-                        ? 'bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition'
-                        : 'border-border text-foreground  hover:to-purple-500/90 text-black px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition'
-                        }`}
-                    >
-                      {cat.replace(/-/g, ' ')}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Search */}
-              <div className="relative max-w-lg mb-8">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search by title"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-11 rounded-xl bg-background border-border focus-visible:ring-primary"
-                />
-              </div>
-
-              {/* Filter tabs */}
-              <div className="flex flex-wrap items-center gap-3 mb-8">
-                {/* All */}
-                <button
-                  onClick={() => setActiveFilter('all')}
-                  className={`stats-tab flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                      ${activeFilter === 'all'
-                      ? 'stats-tab-active bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                >
-                  All Exercises
-                  <Badge variant="secondary" className="bg-background/70">
-                    {exercises.length}
-                  </Badge>
-                </button>
-
-                {/* Completed */}
-                <button
-                  onClick={() => setActiveFilter('completed')}
-                  className={`stats-tab flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                      ${activeFilter === 'completed'
-                      ? 'stats-tab-active bg-green-500/10 text-green-700 border border-green-200'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                >
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Completed
-                  <Badge variant="secondary" className="bg-background/70">
-                    {completedCount}
-                  </Badge>
-                </button>
-
-                {/* In Progress */}
-                <button
-                  onClick={() => setActiveFilter('progress')}
-                  className={`stats-tab flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                      ${activeFilter === 'progress'
-                      ? 'stats-tab-active bg-blue-500/10 text-blue-700 border border-blue-200'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                >
-                  <Clock className="w-4 h-4 text-blue-500" />
-                  In Progress
-                  <Badge variant="secondary" className="bg-background/70">
-                    {inProgressCount}
-                  </Badge>
-                </button>
-
-                {/* Available */}
-                <button
-                  onClick={() => setActiveFilter('available')}
-                  className={`stats-tab flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                      ${activeFilter === 'available'
-                      ? 'stats-tab-active bg-muted text-foreground border border-border'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                >
-                  <Circle className="w-4 h-4" />
-                  Available
-                  <Badge variant="secondary" className="bg-background/70">
-                    {availableCount > 0 ? availableCount : exercises.length}
-                  </Badge>
-                </button>
-              </div>
+              </section>
 
               {/* Loading exercises */}
               {isLoadingExercises && (
