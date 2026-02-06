@@ -1,12 +1,12 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 export interface UserProgressItem {
   _id: string;
   user: string;
   trackSlug: string;
-  exerciseSlug: string;
+  exerciseSlug: string | null; // ✅ CHANGED (join record stores null)
   category: string;
-  status: 'in_progress' | 'completed';
+  status: "in_progress" | "completed";
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -28,11 +28,35 @@ export const progressApi = {
       const response = await apiClient.get<{
         success: boolean;
         data: UserProgressItem[];
-      }>('/api/progress/my-progress');
+      }>("/api/progress/my-progress");
       return response.data.data || [];
     } catch (error) {
-      console.error('Failed to fetch progress:', error);
+      console.error("Failed to fetch progress:", error);
       return [];
+    }
+  },
+
+  /**
+   * ✅ NEW: Mark an exercise as in_progress (when user clicks "Start Exercise")
+   */
+  startExercise: async (
+    trackSlug: string,
+    category: string,
+    exerciseSlug: string,
+  ): Promise<UserProgressItem | null> => {
+    try {
+      const response = await apiClient.post<{
+        success: boolean;
+        data: UserProgressItem;
+      }>("/api/progress/start", {
+        trackSlug,
+        category,
+        exerciseSlug,
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error("Failed to start exercise:", error);
+      return null;
     }
   },
 
@@ -42,20 +66,20 @@ export const progressApi = {
   markCompleted: async (
     trackSlug: string,
     category: string,
-    exerciseSlug: string
+    exerciseSlug: string,
   ): Promise<UserProgressItem | null> => {
     try {
       const response = await apiClient.post<{
         success: boolean;
         data: UserProgressItem;
-      }>('/api/progress/complete', {
+      }>("/api/progress/complete", {
         trackSlug,
         category,
         exerciseSlug,
       });
       return response.data.data;
     } catch (error) {
-      console.error('Failed to mark completed:', error);
+      console.error("Failed to mark completed:", error);
       return null;
     }
   },
@@ -68,10 +92,10 @@ export const progressApi = {
       const response = await apiClient.post<{
         success: boolean;
         message: string;
-      }>(`/api/tracks/${trackSlug}/join`);
+      }>(`/api/progress/tracks/${trackSlug}/join`); 
       return response.data.success;
     } catch (error) {
-      console.error('Failed to join track:', error);
+      console.error("Failed to join track:", error);
       return false;
     }
   },
@@ -79,31 +103,45 @@ export const progressApi = {
   /**
    * Check if user has joined a specific track
    */
-  hasJoinedTrack: (progress: UserProgressItem[], trackSlug: string): boolean => {
-    return progress.some(p => p.trackSlug === trackSlug);
+  hasJoinedTrack: (
+    progress: UserProgressItem[],
+    trackSlug: string,
+  ): boolean => {
+    return progress.some(
+      (p) => p.trackSlug === trackSlug && p.exerciseSlug === null,
+    );
   },
 
   /**
    * Check if a specific exercise is completed
    */
-  isExerciseCompleted: (
-    progress: UserProgressItem[],
-    trackSlug: string,
-    exerciseSlug: string
-  ): boolean => {
-    return progress.some(
-      p => p.trackSlug === trackSlug && 
-           p.exerciseSlug === exerciseSlug && 
-           p.status === 'completed'
+ isExerciseCompleted: (
+  progress: UserProgressItem[],
+  trackSlug: string,
+  category: string | null,
+  exerciseSlug: string | null,
+): boolean => {
+  const target = (exerciseSlug || "").split("/").pop();
+
+  return progress.some((p) => {
+    const saved = (p.exerciseSlug || "").split("/").pop();
+    return (
+      p.trackSlug === trackSlug &&
+      p.category === category &&
+      saved === target &&
+      p.status === "completed"
     );
-  },
+  });
+},
+
+
 
   /**
    * Get progress summary grouped by track
    */
   getProgressSummary: async (
     progress: UserProgressItem[],
-    trackExerciseCounts: Record<string, number>
+    trackExerciseCounts: Record<string, number>,
   ): Promise<TrackProgressSummary[]> => {
     const summaryMap: Record<string, TrackProgressSummary> = {};
 
@@ -117,7 +155,10 @@ export const progressApi = {
         };
       }
 
-      if (item.status === 'completed') {
+      // ✅ ignore "track join" record (exerciseSlug null)
+      if (!item.exerciseSlug) continue;
+
+      if (item.status === "completed") {
         summaryMap[item.trackSlug].completed++;
       } else {
         summaryMap[item.trackSlug].inProgress++;

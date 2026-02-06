@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { exercisesApi } from "@/api/exercises";
+import { progressApi } from "@/api/progress"; // ✅ ADDED
 import { Exercise } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,8 @@ interface ExerciseLink {
 }
 
 const ExerciseDetail: React.FC = () => {
+  const [isStarting, setIsStarting] = useState(false);
+
   const {
     slug: trackSlug,
     category,
@@ -58,7 +61,7 @@ const ExerciseDetail: React.FC = () => {
           data = await exercisesApi.getExerciseBySlug(
             trackSlug,
             category,
-            exerciseSlug
+            exerciseSlug,
           );
         } else if (id) {
           data = await exercisesApi.getExerciseById(id);
@@ -130,9 +133,15 @@ const ExerciseDetail: React.FC = () => {
   const iconConfig = getTrackConfig(currentTrackSlug);
 
   // Clean markdown content to remove duplicate headings
-  const introSource = (exercise as any).introduction || exercise.description;
-  const cleanedDescription = stripMarkdownHeading(introSource, 'Introduction');
-  const cleanedInstructions = stripMarkdownHeading(exercise.instructions, 'Instructions');
+  const introSource =
+  ((exercise as any).introduction || exercise.description || "")
+    .replace(/\bExercism\b/g, "CodeEasy");
+
+  const cleanedDescription = stripMarkdownHeading(introSource, "Introduction");
+  const cleanedInstructions = stripMarkdownHeading(
+    exercise.instructions,
+    "Instructions",
+  );
 
   // Get links from exercise if available (from backend)
   const exerciseLinks: ExerciseLink[] = (exercise as any).links || [];
@@ -141,19 +150,18 @@ const ExerciseDetail: React.FC = () => {
   if ((exercise as any).source_url) {
     exerciseLinks.push({
       url: (exercise as any).source_url,
-      description: (exercise as any).source || 'Source'
+      description: (exercise as any).source || "Source",
     });
   }
   //exercise title formatter
   const formatExerciseTitle = (title: string) => {
-    if (!title) return '';
+    if (!title) return "";
     return title
-      .replace(/-/g, ' ')              // remove dashes
-      .replace(/\s+/g, ' ')            // normalize spaces
+      .replace(/-/g, " ") // remove dashes
+      .replace(/\s+/g, " ") // normalize spaces
       .trim()
       .replace(/^./, (c) => c.toUpperCase()); // capitalize first letter
   };
-
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -210,7 +218,6 @@ const ExerciseDetail: React.FC = () => {
       </section>
 
       {/* Header */}
-
       <section className="border-b py-8">
         <div className="container mx-auto px-4 flex gap-6 items-center">
           <ExerciseIcon slug={exercise.slug} size="lg" className="w-20 h-20" />
@@ -219,7 +226,10 @@ const ExerciseDetail: React.FC = () => {
             <h1 className="text-3xl font-bold mb-2">
               {formatExerciseTitle(exercise.title)}
             </h1>
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+            <Badge
+              variant="outline"
+              className="bg-primary/10 text-primary border-primary/30"
+            >
               {exercise.exerciseType === "tutorial"
                 ? "Tutorial Exercise"
                 : "Learning Exercise"}
@@ -319,8 +329,38 @@ const ExerciseDetail: React.FC = () => {
                         `/tracks/${currentTrackSlug}/exercises/${currentCategory}/${exercise.slug}/edit`
                       )
                     }
+                    disabled={isStarting}
+                    className="w-full text-base font-semibold rounded-xl h-12"
+                    onClick={async () => {
+                      if (isStarting) return;
+
+                      setIsStarting(true);
+                      try {
+                        await progressApi.startExercise(
+                          currentTrackSlug,
+                          currentCategory,
+                          exercise.slug,
+                        );
+
+                        navigate(
+                          `/tracks/${currentTrackSlug}/exercises/${currentCategory}/${exercise.slug}/edit`,
+                        );
+                      } catch (e) {
+                        console.error(e);
+                        // optional: show toast if you want
+                      } finally {
+                        setIsStarting(false);
+                      }
+                    }}
                   >
-                    Start Exercise
+                    {isStarting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Starting...
+                      </span>
+                    ) : (
+                      "Start Exercise"
+                    )}
                   </Button>
                 ) : (
                   <>

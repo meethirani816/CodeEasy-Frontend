@@ -1,46 +1,46 @@
-import apiClient from './apiClient';
-import { Track, Category, TrackConfig, ConceptConfig } from '@/types';
+import apiClient from "./apiClient";
+import { Track, Category, TrackConfig, ConceptConfig } from "@/types";
 
 // Helper to format concept slug to display name (e.g., "arithmetic-operators" -> "Arithmetic Operators")
 const formatConceptName = (slug: string): string => {
   return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 // Track name mapping - Supported languages
 const TRACK_NAMES: Record<string, string> = {
-  c: 'C',
-  javascript: 'JavaScript',
-  python: 'Python',
-  java: 'Java',
-  cpp: 'C++',
-  typescript: 'TypeScript',
-  go: 'Go',
-  rust: 'Rust',
-  csharp: 'C#',
-  php: 'PHP',
-  swift: 'Swift',
-  kotlin: 'Kotlin',
-  ruby: 'Ruby',
-  scala: 'Scala',
-  elixir: 'Elixir',
-  haskell: 'Haskell',
-  lua: 'Lua',
-  r: 'R',
-  julia: 'Julia',
-  perl: 'Perl',
-  clojure: 'Clojure',
-  fsharp: 'F#',
-  ocaml: 'OCaml',
-  erlang: 'Erlang',
-  zig: 'Zig',
-  nim: 'Nim',
-  crystal: 'Crystal',
-  dart: 'Dart',
-  bash: 'Bash',
-  powershell: 'PowerShell',
+  c: "C",
+  javascript: "JavaScript",
+  python: "Python",
+  java: "Java",
+  cpp: "C++",
+  typescript: "TypeScript",
+  go: "Go",
+  rust: "Rust",
+  csharp: "C#",
+  php: "PHP",
+  swift: "Swift",
+  kotlin: "Kotlin",
+  ruby: "Ruby",
+  scala: "Scala",
+  elixir: "Elixir",
+  haskell: "Haskell",
+  lua: "Lua",
+  r: "R",
+  julia: "Julia",
+  perl: "Perl",
+  clojure: "Clojure",
+  fsharp: "F#",
+  ocaml: "OCaml",
+  erlang: "Erlang",
+  zig: "Zig",
+  nim: "Nim",
+  crystal: "Crystal",
+  dart: "Dart",
+  bash: "Bash",
+  powershell: "PowerShell",
 };
 
 // Backend track response format
@@ -59,9 +59,12 @@ interface BackendTrack {
 }
 
 // Helper to convert backend track to frontend Track type
-const backendTrackToTrack = (data: BackendTrack | string, index: number): Track => {
+const backendTrackToTrack = (
+  data: BackendTrack | string,
+  index: number,
+): Track => {
   // Handle string slugs
-  if (typeof data === 'string') {
+  if (typeof data === "string") {
     return {
       _id: `track-${data}-${index}`,
       name: TRACK_NAMES[data] || data.charAt(0).toUpperCase() + data.slice(1),
@@ -77,9 +80,16 @@ const backendTrackToTrack = (data: BackendTrack | string, index: number): Track 
   // Handle object format from backend
   return {
     _id: `track-${data.slug}-${index}`,
-    name: data.name || data.language || TRACK_NAMES[data.slug] || data.slug.charAt(0).toUpperCase() + data.slug.slice(1),
+    name:
+      data.name ||
+      data.language ||
+      TRACK_NAMES[data.slug] ||
+      data.slug.charAt(0).toUpperCase() + data.slug.slice(1),
     slug: data.slug,
-    description: data.blurb || data.description || `Learn ${data.name || data.slug} programming`,
+    description:
+      data.blurb ||
+      data.description ||
+      `Learn ${data.name || data.slug} programming`,
     exerciseCount: data.exerciseCount || 0,
     studentCount: data.studentCount || 0,
     tags: data.tags || [],
@@ -89,11 +99,11 @@ const backendTrackToTrack = (data: BackendTrack | string, index: number): Track 
 
 export const tracksApi = {
   getAllTracks: async (): Promise<Track[]> => {
-    console.log('[Tracks API] Fetching /api/tracks...');
-    
-    const response = await apiClient.get('/api/tracks');
-    
-    console.log('[Tracks API] Response:', {
+    console.log("[Tracks API] Fetching /api/tracks...");
+
+    const response = await apiClient.get("/api/tracks");
+
+    console.log("[Tracks API] Response:", {
       status: response.status,
       data: response.data,
     });
@@ -104,8 +114,8 @@ export const tracksApi = {
 
     // Check for { success: true, tracks: [...] } format
     if (rawData?.success && rawData?.tracks) {
-      tracks = rawData.tracks.map((item: BackendTrack | string, i: number) => 
-        backendTrackToTrack(item, i)
+      tracks = rawData.tracks.map((item: BackendTrack | string, i: number) =>
+        backendTrackToTrack(item, i),
       );
     }
     // Check for direct array
@@ -114,75 +124,77 @@ export const tracksApi = {
     }
     // Check for { data: [...] } format
     else if (rawData?.data && Array.isArray(rawData.data)) {
-      tracks = rawData.data.map((item: BackendTrack | string, i: number) => 
-        backendTrackToTrack(item, i)
+      tracks = rawData.data.map((item: BackendTrack | string, i: number) =>
+        backendTrackToTrack(item, i),
       );
     }
     // Check for { tracks: [...] } format without success
     else if (rawData?.tracks && Array.isArray(rawData.tracks)) {
-      tracks = rawData.tracks.map((item: BackendTrack | string, i: number) => 
-        backendTrackToTrack(item, i)
+      tracks = rawData.tracks.map((item: BackendTrack | string, i: number) =>
+        backendTrackToTrack(item, i),
       );
-    }
-    else {
-      console.warn('[Tracks API] Unexpected response shape:', rawData);
+    } else {
+      console.warn("[Tracks API] Unexpected response shape:", rawData);
       tracks = [];
     }
 
-    console.log('[Tracks API] Parsed tracks:', tracks.length, 'items');
+    console.log("[Tracks API] Parsed tracks:", tracks.length, "items");
     return tracks;
   },
 
   getTrackBySlug: async (slug: string): Promise<Track> => {
-    // First try to get track config for more details
+
+    try {
+      const response = await apiClient.get(`/api/tracks/${slug}`);
+      const data = response.data?.track || response.data;
+
+      if (data) {
+        return backendTrackToTrack(data, 0);
+      }
+    } catch (err) {
+      console.warn("[Tracks API] Could not fetch /api/tracks/:slug", err);
+    }
+
+    
     try {
       const config = await tracksApi.getTrackConfig(slug);
       if (config) {
-        const exerciseCount = 
-          (config.exercises?.concept?.length || 0) + 
+        const exerciseCount =
+          (config.exercises?.concept?.length || 0) +
           (config.exercises?.practice?.length || 0);
-        
+
         return {
           _id: `track-${slug}`,
           name: config.language || TRACK_NAMES[slug] || slug,
-          slug: slug,
-          description: config.blurb || `Learn ${config.language || slug} programming`,
-          exerciseCount: exerciseCount,
-          studentCount: 0,
+          slug,
+          description: config.blurb || `Learn ${config.language || slug}`,
+          exerciseCount,
+          studentCount: 0, // fallback only
           tags: config.tags || [],
           createdAt: new Date().toISOString(),
         };
       }
-    } catch (err) {
-      console.warn('[Tracks API] Could not fetch config for track:', slug);
-    }
+    } catch {}
 
-    // Fallback: fetch all tracks and filter by slug
-    const tracks = await tracksApi.getAllTracks();
-    const track = tracks.find(t => t.slug === slug);
-    
-    if (!track) {
-      // Return a minimal track object
-      return {
-        _id: `track-${slug}`,
-        name: TRACK_NAMES[slug] || slug.charAt(0).toUpperCase() + slug.slice(1),
-        slug: slug,
-        description: `Learn ${TRACK_NAMES[slug] || slug} programming`,
-        exerciseCount: 0,
-        studentCount: 0,
-        tags: [],
-        createdAt: new Date().toISOString(),
-      };
-    }
-    
-    return track;
+    // 🆘 LAST fallback
+    return {
+      _id: `track-${slug}`,
+      name: TRACK_NAMES[slug] || slug,
+      slug,
+      description: `Learn ${TRACK_NAMES[slug] || slug}`,
+      exerciseCount: 0,
+      studentCount: 0,
+      tags: [],
+      createdAt: new Date().toISOString(),
+    };
   },
 
   getTrackCategories: async (trackId: string): Promise<Category[]> => {
     try {
-      const response = await apiClient.get<{ success: boolean; data: Category[] }>(
-        `/api/categories/track/${trackId}`
-      );
+      const response = await apiClient.get<{
+        success: boolean;
+        data: Category[];
+      }>(`/api/categories/track/${trackId}`);
       return response.data.data || [];
     } catch {
       return [];
@@ -194,15 +206,15 @@ export const tracksApi = {
    */
   getTrackConfig: async (slug: string): Promise<TrackConfig | null> => {
     console.log(`[Tracks API] Fetching config for: ${slug}`);
-    
+
     try {
       const response = await apiClient.get(`/api/tracks/${slug}/config`);
       const config = response.data.config || response.data;
-      
-      console.log('[Tracks API] Config response:', config);
+
+      console.log("[Tracks API] Config response:", config);
       return config;
     } catch (error) {
-      console.warn('[Tracks API] Could not fetch config:', error);
+      console.warn("[Tracks API] Could not fetch config:", error);
       return null;
     }
   },
@@ -212,13 +224,13 @@ export const tracksApi = {
    */
   getTrackAbout: async (slug: string): Promise<string> => {
     console.log(`[Tracks API] Fetching about for: ${slug}`);
-    
+
     try {
       const response = await apiClient.get(`/api/tracks/${slug}/about`);
-      return response.data.about || '';
+      return response.data.about || "";
     } catch (error) {
-      console.warn('[Tracks API] Could not fetch about:', error);
-      return '';
+      console.warn("[Tracks API] Could not fetch about:", error);
+      return "";
     }
   },
 
@@ -227,21 +239,24 @@ export const tracksApi = {
    */
   getConcepts: async (slug: string): Promise<ConceptConfig[]> => {
     console.log(`[Tracks API] Fetching concepts for: ${slug}`);
-    
+
     try {
       // Try concepts API first
       const response = await apiClient.get(`/api/tracks/${slug}/concepts`);
       // Backend returns { success: true, concepts: [...] }
       const rawConcepts = response.data.concepts || [];
-      
+
       // Map concepts to ensure they have name property (create from slug if missing)
       return rawConcepts.map((concept: any) => ({
-        uuid: concept.uuid || concept.slug || '',
-        slug: concept.slug || '',
-        name: concept.name || formatConceptName(concept.slug || ''),
+        uuid: concept.uuid || concept.slug || "",
+        slug: concept.slug || "",
+        name: concept.name || formatConceptName(concept.slug || ""),
       }));
     } catch (error) {
-      console.warn('[Tracks API] Could not fetch concepts, trying config:', error);
+      console.warn(
+        "[Tracks API] Could not fetch concepts, trying config:",
+        error,
+      );
       // Fallback to config
       try {
         const config = await tracksApi.getTrackConfig(slug);
@@ -255,18 +270,22 @@ export const tracksApi = {
   /**
    * Get concept exercises from track config
    */
-  getConceptExercises: async (slug: string): Promise<{ slug: string; name: string; concepts: string[] }[]> => {
+  getConceptExercises: async (
+    slug: string,
+  ): Promise<{ slug: string; name: string; concepts: string[] }[]> => {
     console.log(`[Tracks API] Fetching concept exercises for: ${slug}`);
-    
+
     try {
       const config = await tracksApi.getTrackConfig(slug);
-      return config?.exercises?.concept?.map(ex => ({
-        slug: ex.slug,
-        name: ex.name,
-        concepts: ex.concepts || [],
-      })) || [];
+      return (
+        config?.exercises?.concept?.map((ex) => ({
+          slug: ex.slug,
+          name: ex.name,
+          concepts: ex.concepts || [],
+        })) || []
+      );
     } catch (error) {
-      console.warn('[Tracks API] Could not fetch concept exercises:', error);
+      console.warn("[Tracks API] Could not fetch concept exercises:", error);
       return [];
     }
   },

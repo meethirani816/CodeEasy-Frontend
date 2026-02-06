@@ -12,6 +12,7 @@ import {
   ExternalLink,
   ChevronRight,
   Code2,
+  CheckCircle, // ✅ ADDED
 } from "lucide-react";
 import TrackIcon from "@/components/TrackIcon";
 import ExerciseIcon from "@/components/ExerciseIcon";
@@ -27,16 +28,30 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+// ✅ ADDED (only these)
+import { progressApi, UserProgressItem } from "@/api/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
 const ConceptDetailPage: React.FC = () => {
   const { slug: trackSlug, conceptSlug } = useParams<{
     slug: string;
     conceptSlug: string;
   }>();
   const navigate = useNavigate();
+
+  // ✅ ADDED
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
   const [concept, setConcept] = useState<ConceptDetailType | null>(null);
   const [trackConfig, setTrackConfig] = useState<TrackConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ✅ ADDED
+  const [userProgress, setUserProgress] = useState<UserProgressItem[]>([]);
+  const [isMarking, setIsMarking] = useState(false);
 
   useEffect(() => {
     const fetchConceptData = async () => {
@@ -53,6 +68,12 @@ const ConceptDetailPage: React.FC = () => {
 
         setConcept(conceptData);
         setTrackConfig(configData);
+
+        // ✅ ADDED: fetch progress for completion button
+        if (isAuthenticated) {
+          const p = await progressApi.getMyProgress();
+          setUserProgress(p);
+        }
       } catch (err) {
         console.error("Failed to load concept:", err);
         setError("Failed to load concept details.");
@@ -62,7 +83,7 @@ const ConceptDetailPage: React.FC = () => {
     };
 
     fetchConceptData();
-  }, [trackSlug, conceptSlug]);
+  }, [trackSlug, conceptSlug, isAuthenticated]); // ✅ CHANGED (added isAuthenticated)
 
   if (isLoading) {
     return (
@@ -100,6 +121,53 @@ const ConceptDetailPage: React.FC = () => {
     concept?.about || "",
     trackSlug || "",
   );
+
+  // ✅ ADDED: concept completion check
+  const isConceptCompleted =
+    !!trackSlug &&
+    !!conceptSlug &&
+    progressApi.isExerciseCompleted(userProgress, trackSlug, conceptSlug);
+
+  // ✅ ADDED: mark concept completed
+  const handleMarkConceptCompleted = async () => {
+    if (!isAuthenticated) {
+      navigate("/signup");
+      return;
+    }
+    if (!trackSlug || !conceptSlug) return;
+
+    setIsMarking(true);
+    try {
+      const saved = await progressApi.markCompleted(
+        trackSlug,
+        "concept",
+        conceptSlug,
+      );
+      if (saved) {
+        const p = await progressApi.getMyProgress();
+        setUserProgress(p);
+
+        toast({
+          title: "Completed!",
+          description: `${formattedConceptName} marked as completed.`,
+        });
+      } else {
+        toast({
+          title: "Failed",
+          description: "Could not mark as completed.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Something went wrong.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMarking(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
@@ -142,180 +210,207 @@ const ConceptDetailPage: React.FC = () => {
 
       <main className="flex-1 py-10">
         <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center gap-5 mb-8">
-  {/* Concept Badge */}
-  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-    <span className="text-2xl font-serif text-foreground">
-      {badgeText}
-    </span>
-  </div>
+          <div className="flex items-center gap-5 mb-8">
+            {/* Concept Badge */}
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-2xl font-serif text-foreground">
+                {badgeText}
+              </span>
+            </div>
 
-  {/* Title Block */}
-  <div className="min-w-0">
-    <div className="flex items-center gap-2 flex-wrap">
-      <h1 className="text-3xl md:text-4xl font-serif tracking-tight text-foreground leading-tight">
-        {formattedConceptName}
-      </h1>
+            {/* Title Block */}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-3xl md:text-4xl font-serif tracking-tight text-foreground leading-tight">
+                  {formattedConceptName}
+                </h1>
 
-      <span className="text-muted-foreground text-lg">in</span>
+                <span className="text-muted-foreground text-lg">in</span>
 
-      <span className="inline-flex items-center gap-2">
-        <TrackIcon slug={trackSlug || ""} size="sm" showImage />
-        <span className="text-base text-muted-foreground font-medium">
-          {trackName}
-        </span>
-      </span>
-    </div>
-
-    <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
-      <span className="opacity-70">↔</span>
-      <span>{exerciseCount} exercises</span>
-    </div>
-  </div>
-</div>
-
-
-            {error ? (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
-                <p className="text-destructive">{error}</p>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => window.location.reload()}
-                >
-                  Retry
-                </Button>
+                <span className="inline-flex items-center gap-2">
+                  <TrackIcon slug={trackSlug || ""} size="sm" showImage />
+                  <span className="text-base text-muted-foreground font-medium">
+                    {trackName}
+                  </span>
+                </span>
               </div>
-            ) : (
-              <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                  {processedAbout && (
-                    <section className="bg-background border border-border rounded-2xl p-8 md:p-10 shadow-sm">
-                      <div className="flex items-center gap-2 mb-4">
-                        <BookOpen className="w-5 h-5 text-primary" />
-                        <h2 className="text-xl font-semibold text-foreground">
-                          About {formattedConceptName}
-                        </h2>
-                      </div>
-                      <div className="prose prose-lg max-w-none text-foreground">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={markdownComponents}
-                        >
-                          {processedAbout}
-                        </ReactMarkdown>
-                      </div>
-                    </section>
-                  )}
 
-                  {!processedAbout && (
-                    <section className="bg-background border border-dashed border-border rounded-2xl p-10">
-                      <div className="text-muted-foreground">
-                        Content Not Available
-                      </div>
-                    </section>
-                  )}
-                </div>
-
-                <div className="space-y-6">
-                  <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-foreground flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted border border-border">
-                          ⬚
-                        </span>
-                        Learn {formattedConceptName}
-                      </h3>
-                    </div>
-
-                    {featuredExercise ? (
-                      <Link
-                        to={`/tracks/${trackSlug}/exercises/concept/${featuredExercise.slug}`}
-                        className="flex items-start gap-4 p-4 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
-                      >
-                        <ExerciseIcon slug={featuredExercise.slug} size="md" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="text-base font-semibold text-foreground truncate">
-                              {featuredExercise.name}
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                          </div>
-
-                          <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background text-muted-foreground">
-                            Learning Exercise
-                          </div>
-                        </div>
-                      </Link>
-                    ) : (
-                      <div className="text-sm text-muted-foreground">
-                        No learning exercise available for this concept yet.
-                      </div>
-                    )}
-                  </section>
-
-                  {concept?.links && concept.links.length > 0 && (
-                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <ExternalLink className="w-4 h-4 text-primary" />
-                        Learn More
-                      </h3>
-                      <div className="space-y-3">
-                        {concept.links.map((link, index) => (
-                          <a
-                            key={index}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
-                          >
-                            {link.icon_url ? (
-                              <img
-                                src={link.icon_url}
-                                alt=""
-                                className="w-5 h-5 mt-0.5"
-                              />
-                            ) : (
-                              <ExternalLink className="w-4 h-4 text-muted-foreground mt-0.5" />
-                            )}
-                            <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors">
-                              {link.description}
-                            </span>
-                          </a>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {practiceExercises.length > 0 && (
-                    <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
-                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <Code2 className="w-4 h-4 text-primary" />
-                        Practice Exercises
-                      </h3>
-                      <div className="space-y-2">
-                        {practiceExercises.map((exercise) => (
-                          <Link
-                            key={exercise.slug}
-                            to={`/tracks/${trackSlug}/exercises/concept/${exercise.slug}`}
-                            className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
-                          >
-                            <ExerciseIcon slug={exercise.slug} size="sm" />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
-                                {exercise.name}
-                              </div>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                          </Link>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-                </div>
+              <div className="mt-1 text-sm text-muted-foreground flex items-center gap-2">
+                <span className="opacity-70">↔</span>
+                <span>{exerciseCount} exercises</span>
               </div>
-            )}
+            </div>
           </div>
+
+          {error ? (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
+              <p className="text-destructive">{error}</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                {processedAbout && (
+                  <section className="bg-background border border-border rounded-2xl p-8 md:p-10 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <BookOpen className="w-5 h-5 text-primary" />
+                      <h2 className="text-xl font-semibold text-foreground">
+                        About {formattedConceptName}
+                      </h2>
+                    </div>
+                    <div className="prose prose-lg max-w-none text-foreground">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={markdownComponents}
+                      >
+                        {processedAbout}
+                      </ReactMarkdown>
+                    </div>
+                  </section>
+                )}
+
+                {!processedAbout && (
+                  <section className="bg-background border border-dashed border-border rounded-2xl p-10">
+                    <div className="text-muted-foreground">
+                      Content Not Available
+                    </div>
+                  </section>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
+                  {/* ✅ CHANGED ONLY THIS HEADER AREA: added Completed button */}
+                  <div className="flex items-center justify-between mb-4 gap-3">
+                    <h3 className="font-semibold text-foreground flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-muted border border-border">
+                        ⬚
+                      </span>
+                      Learn {formattedConceptName}
+                    </h3>
+
+                    <Button
+                      size="sm"
+                      onClick={
+                        isConceptCompleted
+                          ? undefined
+                          : handleMarkConceptCompleted
+                      }
+                      disabled={isMarking || isConceptCompleted}
+                      className={
+                        isConceptCompleted
+                          ? "bg-green-500/10 text-green-700 border border-green-200 hover:bg-green-500/10"
+                          : ""
+                      }
+                      variant={isConceptCompleted ? "outline" : "default"}
+                    >
+                      {isMarking ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : isConceptCompleted ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Completed
+                        </>
+                      ) : (
+                        "Mark Completed"
+                      )}
+                    </Button>
+                  </div>
+
+                  {featuredExercise ? (
+                    <Link
+                      to={`/tracks/${trackSlug}/exercises/concept/${featuredExercise.slug}`}
+                      className="flex items-start gap-4 p-4 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+                    >
+                      <ExerciseIcon slug={featuredExercise.slug} size="md" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-base font-semibold text-foreground truncate">
+                            {featuredExercise.name}
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                        </div>
+
+                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background text-muted-foreground">
+                          Learning Exercise
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No learning exercise available for this concept yet.
+                    </div>
+                  )}
+                </section>
+
+                {concept?.links && concept.links.length > 0 && (
+                  <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-primary" />
+                      Learn More
+                    </h3>
+                    <div className="space-y-3">
+                      {concept.links.map((link, index) => (
+                        <a
+                          key={index}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
+                        >
+                          {link.icon_url ? (
+                            <img
+                              src={link.icon_url}
+                              alt=""
+                              className="w-5 h-5 mt-0.5"
+                            />
+                          ) : (
+                            <ExternalLink className="w-4 h-4 text-muted-foreground mt-0.5" />
+                          )}
+                          <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors">
+                            {link.description}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {practiceExercises.length > 0 && (
+                  <section className="bg-background border border-border rounded-2xl p-6 shadow-sm">
+                    <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Code2 className="w-4 h-4 text-primary" />
+                      Practice Exercises
+                    </h3>
+                    <div className="space-y-2">
+                      {practiceExercises.map((exercise) => (
+                        <Link
+                          key={exercise.slug}
+                          to={`/tracks/${trackSlug}/exercises/concept/${exercise.slug}`}
+                          className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
+                        >
+                          <ExerciseIcon slug={exercise.slug} size="sm" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                              {exercise.name}
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </main>
 
       <Footer />
