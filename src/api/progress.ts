@@ -118,15 +118,22 @@ export const progressApi = {
  isExerciseCompleted: (
   progress: UserProgressItem[],
   trackSlug: string,
+  category: string | null,
   exerciseSlug: string | null,
 ): boolean => {
   const target = (exerciseSlug || "").split("/").pop();
 
   return progress.some((p) => {
     const saved = (p.exerciseSlug || "").split("/").pop();
-    return p.trackSlug === trackSlug && saved === target && p.status === "completed";
+    return (
+      p.trackSlug === trackSlug &&
+      p.category === category &&
+      saved === target &&
+      p.status === "completed"
+    );
   });
 },
+
 
 
   /**

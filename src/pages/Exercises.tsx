@@ -21,12 +21,8 @@ import {
   CheckCircle,
   Clock,
   Circle,
-  Lock,
   Plus,
-  Info,
-  BookOpen,
   Dumbbell,
-  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -78,7 +74,6 @@ const Exercises: React.FC = () => {
 
         // Fetch categories - include both concept and practice
         const categoriesData = await exercisesApi.getCategoriesByTrack(slug);
-        // Keep all categories (concept and practice)
         setCategories(categoriesData);
 
         // Check URL for category param
@@ -86,7 +81,6 @@ const Exercises: React.FC = () => {
         if (categoryParam && categoriesData.includes(categoryParam)) {
           setSelectedCategory(categoryParam);
         } else if (categoriesData.includes("practice")) {
-          // Default to practice category
           setSelectedCategory("practice");
         } else if (categoriesData.length > 0) {
           setSelectedCategory(categoriesData[0]);
@@ -140,7 +134,9 @@ const Exercises: React.FC = () => {
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" "),
           slug: exSlug,
-          description: `Practice ${exSlug.replace(/-/g, " ")} in ${track?.name || slug}`,
+          description: `Practice ${exSlug.replace(/-/g, " ")} in ${
+            track?.name || slug
+          }`,
           difficulty: "easy" as const,
           category: selectedCategory,
           track: slug,
@@ -185,13 +181,16 @@ const Exercises: React.FC = () => {
         const isCompleted = progressApi.isExerciseCompleted(
           userProgress,
           slug,
+          selectedCategory,
           exercise.slug,
         );
+
         const isInProgress = userProgress.some((p) => {
           const saved = (p.exerciseSlug || "").split("/").pop();
           const current = (exercise.slug || "").split("/").pop();
           return (
             p.trackSlug === slug &&
+            p.category === selectedCategory &&
             saved === current &&
             p.status === "in_progress"
           );
@@ -211,7 +210,14 @@ const Exercises: React.FC = () => {
     }
 
     setFilteredExercises(filtered);
-  }, [searchQuery, exercises, activeFilter, userProgress, slug]);
+  }, [
+    searchQuery,
+    exercises,
+    activeFilter,
+    userProgress,
+    slug,
+    selectedCategory,
+  ]);
 
   const handleJoinTrack = async () => {
     if (!isAuthenticated) {
@@ -255,20 +261,23 @@ const Exercises: React.FC = () => {
     ? userProgress.filter(
         (p) =>
           p.trackSlug === slug &&
+          p.category === selectedCategory &&
           p.status === "completed" &&
           p.exerciseSlug !== null,
       ).length
     : 0;
+
   const inProgressCount = slug
     ? userProgress.filter(
         (p) =>
           p.trackSlug === slug &&
+          p.category === selectedCategory &&
           p.status === "in_progress" &&
           p.exerciseSlug !== null,
       ).length
     : 0;
+
   const availableCount = exercises.length - completedCount - inProgressCount;
-  const lockedCount = 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -374,7 +383,6 @@ const Exercises: React.FC = () => {
       {/* Main Content */}
       {!isLoading && !error && (
         <>
-          {/* Search and Filters */}
           <section className="py-0">
             <div className="max-w-7xl mx-auto px-6">
               <section className="sticky top-[64px] z-20 bg-background/90 backdrop-blur border-b border-border">
@@ -387,11 +395,11 @@ const Exercises: React.FC = () => {
                           key={cat}
                           onClick={() => setSelectedCategory(cat)}
                           className={`px-4 py-2 rounded-full text-sm font-medium transition
-              ${
-                selectedCategory === cat
-                  ? "bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition"
-                  : "border-border text-foreground hover:to-purple-500/90 text-black px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition"
-              }`}
+                            ${
+                              selectedCategory === cat
+                                ? "bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition"
+                                : "border-border text-foreground hover:to-purple-500/90 text-black px-4 py-2 text-sm font-medium rounded-full shadow-xl hover:scale-[1.03] transition"
+                            }`}
                         >
                           {cat.replace(/-/g, " ")}
                         </button>
@@ -418,11 +426,11 @@ const Exercises: React.FC = () => {
                       <button
                         onClick={() => setActiveFilter("all")}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                            ${
-                              activeFilter === "all"
-                                ? "bg-primary/10 text-primary border border-primary/30"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                            }`}
+                          ${
+                            activeFilter === "all"
+                              ? "bg-primary/10 text-primary border border-primary/30"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
                       >
                         All
                         <Badge variant="outline" className="bg-background/50">
@@ -434,11 +442,11 @@ const Exercises: React.FC = () => {
                       <button
                         onClick={() => setActiveFilter("completed")}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                            ${
-                              activeFilter === "completed"
-                                ? "bg-green-500/10 text-green-700 border border-green-200"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                            }`}
+                          ${
+                            activeFilter === "completed"
+                              ? "bg-green-500/10 text-green-700 border border-green-200"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
                       >
                         <CheckCircle className="w-4 h-4 text-green-500" />
                         Completed
@@ -451,11 +459,11 @@ const Exercises: React.FC = () => {
                       <button
                         onClick={() => setActiveFilter("progress")}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                            ${
-                              activeFilter === "progress"
-                                ? "bg-blue-500/10 text-blue-700 border border-blue-200"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                            }`}
+                          ${
+                            activeFilter === "progress"
+                              ? "bg-blue-500/10 text-blue-700 border border-blue-200"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
                       >
                         <Clock className="w-4 h-4 text-blue-500" />
                         In Progress
@@ -468,11 +476,11 @@ const Exercises: React.FC = () => {
                       <button
                         onClick={() => setActiveFilter("available")}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                            ${
-                              activeFilter === "available"
-                                ? "bg-muted text-foreground border border-border"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                            }`}
+                          ${
+                            activeFilter === "available"
+                              ? "bg-muted text-foreground border border-border"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
                       >
                         <Circle className="w-4 h-4" />
                         Available
@@ -503,19 +511,20 @@ const Exercises: React.FC = () => {
                       progressApi.isExerciseCompleted(
                         userProgress,
                         slug,
+                        selectedCategory,
                         exercise.slug,
                       );
-                    const isInProgress =
-                      slug &&
-                      userProgress.some((p) => {
-                        const saved = (p.exerciseSlug || "").split("/").pop();
-                        const current = (exercise.slug || "").split("/").pop();
-                        return (
-                          p.trackSlug === slug &&
-                          saved === current &&
-                          p.status === "in_progress"
-                        );
-                      });
+
+                    const isInProgress = userProgress.some((p) => {
+                      const saved = (p.exerciseSlug || "").split("/").pop();
+                      const current = (exercise.slug || "").split("/").pop();
+                      return (
+                        p.trackSlug === slug &&
+                        p.category === selectedCategory &&
+                        saved === current &&
+                        p.status === "in_progress"
+                      );
+                    });
 
                     return (
                       <Link
@@ -549,7 +558,6 @@ const Exercises: React.FC = () => {
                               {exercise.title}
                             </h3>
 
-                            {/* Exercise type badge */}
                             <div className="flex items-center gap-2 mt-1 mb-2">
                               <Badge
                                 variant="outline"
@@ -563,6 +571,7 @@ const Exercises: React.FC = () => {
                                   ? "Completed"
                                   : "Learning Exercise"}
                               </Badge>
+
                               <Badge
                                 variant="secondary"
                                 className="text-xs font-normal capitalize"
