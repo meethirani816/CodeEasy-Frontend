@@ -261,3 +261,59 @@
 .min-h-0 {
   min-height: 0;
 }
+
+/* Glass surface */
+.glass {
+  background: rgba(30, 30, 30, 0.75);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Elevated glass card */
+.glass-elevated {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 20px 40px rgba(0,0,0,0.6);
+}
+
+/* Divider handle glow */
+.resizer-glow:hover {
+  box-shadow: 0 0 0 1px rgba(99,102,241,.4),
+              0 0 12px rgba(99,102,241,.4);
+}
+/* =========================================
+   Instruction Flow (FINAL – SINGLE SOURCE)
+   ========================================= */
+
+.instruction-flow {
+  width: 100%;
+  max-width: 100%;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Paragraphs & list items reflow on resize */
+.instruction-flow p,
+.instruction-flow li {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Headings should never lock width */
+.instruction-flow h1,
+.instruction-flow h2,
+.instruction-flow h3,
+.instruction-flow h4 {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Code & tables scroll instead of wrapping */
+.instruction-flow pre,
+.instruction-flow table {
+  max-width: 100%;
+  overflow-x: auto;
+}

@@ -313,7 +313,7 @@ const ExerciseDetail: React.FC = () => {
                 {isAuthenticated ? (
                   <Button
                     size="lg"
-                    className="w-full text-base font-semibold"
+                    className="w-full bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
                     onClick={() =>
                       navigate(
                         `/tracks/${currentTrackSlug}/exercises/${currentCategory}/${exercise.slug}/edit`

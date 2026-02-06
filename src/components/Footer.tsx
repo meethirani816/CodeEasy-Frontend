@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/tracks"
-                  className="text-white hover:text-foreground transition-colors"
+                  className="text-white hover:text-violet-500 transition-colors"
                 >
                   All Tracks
                 </Link>
@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/dashboard"
-                  className="text-white hover:text-foreground transition-colors"
+                  className="text-white hover:text-violet-500 transition-colors"
                 >
                   Dashboard
                 </Link>
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/signup"
-                  className="text-white hover:text-foreground transition-colors"
+                  className="text-white hover:text-violet-500 transition-colors"
                 >
                   Get Started
                 </Link>
@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
               <a
                 href="#"
                 aria-label="GitHub"
-                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-all"
+                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-violet-500 transition-all"
               >
                 <Github className="w-5 h-5" />
               </a>
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
               <a
                 href="#"
                 aria-label="Twitter"
-                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-all"
+                className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-violet-500 transition-all"
               >
                 <Twitter className="w-5 h-5" />
               </a>

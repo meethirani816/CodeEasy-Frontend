@@ -608,137 +608,172 @@ solution() ->
   }
   const hasHints = parsedHints.length > 0;
 
-  // Extract introduction and instructions from exercise data
-  // Look for introduction in exercise data or extract from instructions
-  let introduction = "";
-  let instructions = exercise.instructions || "";
+  //Extraction of introduction instruction content
+  function splitExerciseMarkdown(markdown: string) {
+    const sections: Record<string, string> = {};
+    let currentTitle = '';
+    let buffer: string[] = [];
 
-  // Check if exercise has separate introduction field
-  if ((exercise as any).introduction) {
-    introduction = (exercise as any).introduction;
-  } else {
-    // Try to extract introduction from instructions markdown
-    const introMatch = instructions.match(
-      /^#*\s*Introduction\s*\n([\s\S]*?)(?=\n#|$)/i,
-    );
-    if (introMatch) {
-      introduction = introMatch[1].trim();
-      // Remove introduction from instructions
-      instructions = instructions
-        .replace(/^#*\s*Introduction\s*\n[\s\S]*?(?=\n#|$)/i, "")
-        .trim();
+    const lines = markdown.split('\n');
+
+    for (const line of lines) {
+      // Treat BOTH # and ## as section headers
+      const headingMatch = line.match(/^#{1,2}\s+(.*)/);
+      if (headingMatch) {
+        if (currentTitle) {
+          sections[currentTitle.toLowerCase()] = buffer.join('\n').trim();
+        }
+        currentTitle = headingMatch[1].trim();
+        buffer = [];
+      } else {
+        buffer.push(line);
+      }
     }
+
+    if (currentTitle) {
+      sections[currentTitle.toLowerCase()] = buffer.join('\n').trim();
+    }
+
+    return sections;
   }
 
-  // Clean the instructions markdown
-  const cleanedInstructions = cleanExerciseMarkdown(instructions);
+  const markdownSections = splitExerciseMarkdown(exercise.instructions || '');
 
-  // Process coancept links
+  const introduction =
+    (exercise as any).introduction ||
+    markdownSections['introduction'] ||
+    '';
+
+  const instructions = markdownSections['instructions'] || '';
+
   const processedIntroduction = processConceptLinks(
     introduction,
-    currentTrackSlug,
+    currentTrackSlug
   );
+
   const processedInstructions = processConceptLinks(
-    cleanedInstructions,
-    currentTrackSlug,
+    instructions,
+    currentTrackSlug
   );
+
+  //exercise title formatter
+  const formatExerciseTitle = (title: string) => {
+    if (!title) return '';
+    return title
+      .replace(/-/g, ' ')              // remove dashes
+      .replace(/\s+/g, ' ')            // normalize spaces
+      .trim()
+      .replace(/^./, (c) => c.toUpperCase()); // capitalize first letter
+  };
 
   return (
-    <div className="h-screen flex flex-col bg-[#1e1e1e]">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#0f0f11] via-[#161618] to-[#0b0b0d]">
       {/* Header - Dark theme like Exercism editor */}
-      <header className="bg-[#2d2d2d] border-b border-[#3d3d3d] px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const backCategory = category || exercise?.category || "practice";
-              const backExerciseSlug = exerciseSlug || exercise?.slug || "";
-              navigate(
-                `/tracks/${currentTrackSlug}/exercises/${backCategory}/${backExerciseSlug}`,
-              );
-            }}
-            className="text-gray-300 hover:text-white hover:bg-[#3d3d3d]"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+      <header className="mx-3 mt-3 mb-2 glass glass-elevated rounded-xl px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
 
-          <div className="h-5 w-px bg-[#3d3d3d]" />
-
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm">
-            <div
-              className={`w-5 h-5 ${iconConfig.bg} hexagon flex items-center justify-center ${iconConfig.text} text-[8px] font-bold`}
+          {/* LEFT: Back + Breadcrumb */}
+          <div className="flex items-center gap-3 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const backCategory = category || exercise?.category || "practice";
+                const backExerciseSlug = exerciseSlug || exercise?.slug || "";
+                navigate(
+                  `/tracks/${currentTrackSlug}/exercises/${backCategory}/${backExerciseSlug}`,
+                );
+              }}
+              className="text-gray-300 hover:text-white hover:bg-white/10"
             >
-              {iconConfig.letter}
-            </div>
-            <span className="text-gray-400">{trackName}</span>
-            <ChevronRight className="w-4 h-4 text-gray-500" />
-            <span className="text-white font-medium">{exercise.title}</span>
-          </div>
-        </div>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              if (!hasHints) return;
-              // Reveal the first hint and scroll to the hints section
-              setOpenHints((prev) =>
-                prev.includes("hint-0") ? prev : [...prev, "hint-0"],
-              );
-              // allow layout to paint before scrolling
-              requestAnimationFrame(() =>
-                hintsRef.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                }),
-              );
-            }}
-            className="text-gray-300 hover:text-white hover:bg-[#3d3d3d]"
-            disabled={!hasHints}
-          >
-            <HelpCircle className="w-4 h-4 mr-2" />
-            Stuck? Get help
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="text-gray-300 hover:text-white hover:bg-[#3d3d3d]"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleRun}
-            disabled={isRunning}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isRunning ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                Run Tests
-              </>
-            )}
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleRun}
-            disabled={isRunning}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Submit
-          </Button>
+            <div className="h-5 w-px bg-white/10" />
+
+            <div className="flex items-center gap-2 text-sm truncate">
+              <div
+                className={`w-5 h-5 ${iconConfig.bg} hexagon flex items-center justify-center ${iconConfig.text} text-[8px] font-bold`}
+              >
+                {iconConfig.letter}
+              </div>
+              <span className="text-gray-400 whitespace-nowrap">{trackName}</span>
+              <ChevronRight className="w-4 h-4 text-gray-500 shrink-0" />
+              <span className="text-white font-medium truncate">
+                {formatExerciseTitle(exercise.title)}
+              </span>
+            </div>
+          </div>
+
+          {/* RIGHT: Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (!hasHints) return;
+                setOpenHints((prev) =>
+                  prev.includes("hint-0") ? prev : [...prev, "hint-0"],
+                );
+                requestAnimationFrame(() =>
+                  hintsRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  }),
+                );
+              }}
+              disabled={!hasHints}
+              className="bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] transition"
+            >
+              <HelpCircle className="w-4 h-4 mr-0 mb-0.5" />
+              Help
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className=" bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] transition"
+            >
+              <RotateCcw className="w-4 h-4 mr-0 mb-0.5" />
+              Reset
+            </Button>
+
+            {/* Run Tests */}
+            <Button
+              size="sm"
+              onClick={handleRun}
+              disabled={isRunning}
+              className="bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-600 text-white border border-blue-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_20px_rgba(0,0,0,.45)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_10px_28px_rgba(0,0,0,.6)] transition-all active:translate-y-[1px]
+              "
+            >
+              {isRunning ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-0 mb-0.5 animate-spin" />
+                  Running
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 mr-0 mb-0.5" />
+                  Run Tests
+                </>
+              )}
+            </Button>
+
+            {/* Submit (Primary CTA) */}
+            <Button
+              size="sm"
+              onClick={handleRun}
+              disabled={isRunning}
+              className="bg-gradient-to-b from-green-500 to-green-600 hover:from-green-400 hover:to-green-600 text-white border border-green-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_20px_rgba(0,0,0,.45)hover:shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_10px_28px_rgba(0,0,0,.6)] transition-all active:translate-y-[1px]
+              "
+            >
+              <Send className="w-4 h-4 mr-0 mb-0.5" />
+              Submit
+            </Button>
+          </div>
+
         </div>
       </header>
 
@@ -746,294 +781,303 @@ solution() ->
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Panel - Instructions (Exercism-style single pane) */}
         <ResizablePanel defaultSize={35} minSize={25}>
-          <div className="h-full bg-[#252526] min-h-0 overflow-hidden">
-            {/* SINGLE scroll container */}
-            <EditorScrollArea className="h-full">
-              <div className="p-6 space-y-8">
-                {/* Introduction */}
-                {processedIntroduction?.trim() && (
-                  <section className="pb-8 border-b border-[#3d3d3d]/60">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-primary" />
+          <div className="h-full min-h-0 overflow-hidden p-3 flex flex-col">
+            <div className="h-full glass glass-elevated rounded-xl">
+              {/* SINGLE scroll container */}
+              <EditorScrollArea className="h-full">
+                <div className="p-6 space-y-8">
+                  {/* Introduction */}
+                  {processedIntroduction?.trim() && (
+                    <section className="pb-8 border-b border-[#3d3d3d]/60">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Introduction</h2>
+                          <p className="text-sm text-gray-400">Start here</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Introduction</h2>
-                        <p className="text-sm text-gray-400">Start here</p>
-                      </div>
-                    </div>
 
-                    <div className="prose-container max-w-none">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={darkMarkdownComponents}
-                      >
-                        {processedIntroduction}
-                      </ReactMarkdown>
-                    </div>
-                  </section>
-                )}
-
-                {/* Instructions */}
-                <section className="pb-8 border-b border-[#3d3d3d]/60">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-white">Instructions</h2>
-                      <p className="text-sm text-gray-400">{exercise.title}</p>
-                    </div>
-                  </div>
-
-                  <div className="prose-container max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={darkMarkdownComponents}
-                    >
-                      {processedInstructions || "No instructions available."}
-                    </ReactMarkdown>
-                  </div>
-                </section>
-
-                {/* Hints */}
-                {hasHints && (
-                  <section ref={hintsRef}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
-                        <Lightbulb className="w-5 h-5 text-yellow-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Hints</h2>
-                        <p className="text-sm text-gray-400">Reveal one at a time</p>
-                      </div>
-                    </div>
-
-                    <Accordion
-                      type="multiple"
-                      value={openHints}
-                      onValueChange={setOpenHints}
-                      className="space-y-3"
-                    >
-                      {parsedHints.map((hint, index) => (
-                        <AccordionItem
-                          key={index}
-                          value={`hint-${index}`}
-                          className="bg-[#1e1e1e] rounded-lg border border-[#3d3d3d]"
+                      <div className="instruction-flow">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={darkMarkdownComponents}
                         >
-                          <AccordionTrigger className="px-4 py-3 hover:bg-[#2a2a2a]">
-                            <span className="text-sm text-gray-200">
-                              {index + 1}. {hint.title}
-                            </span>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <div className="prose-container">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={darkMarkdownComponents}
-                              >
-                                {processConceptLinks(
-                                  hint.content,
-                                  currentTrackSlug
-                                )}
-                              </ReactMarkdown>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </section>
-                )}
-              </div>
-            </EditorScrollArea>
+                          {processedIntroduction}
+                        </ReactMarkdown>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Instructions */}
+                  {processedInstructions?.trim() && (
+                    <section className="pb-8 border-b border-[#3d3d3d]/60">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Instructions</h2>
+                          <p className="text-sm text-gray-400">{formatExerciseTitle(exercise.title)}</p>
+                        </div>
+                      </div>
+
+                      <div className="instruction-flow">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={darkMarkdownComponents}
+                        >
+                          {processedInstructions}
+                        </ReactMarkdown>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Hints */}
+                  {hasHints && (
+                    <section ref={hintsRef}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                          <Lightbulb className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Hints</h2>
+                          <p className="text-sm text-gray-400">Reveal one at a time</p>
+                        </div>
+                      </div>
+
+                      <Accordion
+                        type="multiple"
+                        value={openHints}
+                        onValueChange={setOpenHints}
+                        className="space-y-3"
+                      >
+                        {parsedHints.map((hint, index) => (
+                          <AccordionItem
+                            key={index}
+                            value={`hint-${index}`}
+                            className="bg-[#1e1e1e] rounded-lg border border-[#3d3d3d]"
+                          >
+                            <AccordionTrigger className="px-4 py-3 hover:bg-[#2a2a2a]">
+                              <span className="text-sm text-gray-200">
+                                {index + 1}. {hint.title}
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                              <div className="prose-container">
+                                <ReactMarkdown
+                                  remarkPlugins={[remarkGfm]}
+                                  components={darkMarkdownComponents}
+                                >
+                                  {processConceptLinks(
+                                    hint.content,
+                                    currentTrackSlug
+                                  )}
+                                </ReactMarkdown>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </section>
+                  )}
+                </div>
+              </EditorScrollArea>
+            </div>
           </div>
         </ResizablePanel>
 
-        <ResizableHandle className="w-1 bg-[#3d3d3d] hover:bg-primary/50 transition-colors" />
+        <ResizableHandle className="w-[3px] bg-white/5 hover:bg-primary/60 transition-all resizer-glow cursor-col-resize" />
 
         {/* Right Panel - Editor & Output */}
         <ResizablePanel defaultSize={65} minSize={40}>
-          <ResizablePanelGroup direction="vertical">
-            {/* Code Editor with File Tabs */}
-            <ResizablePanel defaultSize={70} minSize={30}>
-              <div className="h-full flex flex-col">
-                {/* File Tabs (only shown for multi-file exercises) */}
-                {Object.keys(files).length > 1 && (
-                  <div className="flex bg-[#252526] border-b border-[#3d3d3d] overflow-x-auto shrink-0">
-                    {Object.keys(files).map((fileName) => (
-                      <button
-                        key={fileName}
-                        onClick={() => handleFileChange(fileName)}
-                        className={`px-4 py-2 text-sm font-mono flex items-center gap-2 border-r border-[#3d3d3d] transition-colors ${activeFile === fileName
-                          ? "bg-[#1e1e1e] text-white border-t-2 border-t-primary"
-                          : "bg-[#2d2d2d] text-gray-400 hover:bg-[#3d3d3d] hover:text-gray-200"
-                          }`}
-                      >
-                        <FileCode className="w-4 h-4" />
-                        {fileName}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <div className="flex-1">
-                  <Editor
-                    height="100%"
-                    language={getLanguage()}
-                    value={code}
-                    onChange={handleCodeChange}
-                    theme="vs-dark"
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      lineNumbers: "on",
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                      tabSize: 2,
-                      wordWrap: "on",
-                      padding: { top: 16 },
-                    }}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
+          <div className="h-full p-3 flex flex-col">
+            <div className="h-full bg-[#1e1e1e] rounded-lg overflow-hidden border border-white/5">
 
-            <ResizableHandle className="h-1 bg-[#3d3d3d] hover:bg-primary/50 transition-colors" />
-
-            {/* Output Panel */}
-            <ResizablePanel defaultSize={30} minSize={15}>
-              <div className="h-full bg-[#1e1e1e] flex flex-col overflow-hidden">
-                <div className="px-4 py-2 border-b border-[#3d3d3d] flex items-center justify-between bg-[#252526] shrink-0">
-                  <span className="font-medium text-sm text-gray-300">
-                    Test Results
-                  </span>
-                  {result && (
-                    <Badge
-                      className={`text-xs ${result.passed
-                        ? "bg-green-500/20 text-green-400 border-green-500/30"
-                        : "bg-red-500/20 text-red-400 border-red-500/30"
-                        }`}
-                    >
-                      {result.passed ? (
-                        <>
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          All Tests Passed
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-3 h-3 mr-1" />
-                          Tests Failed
-                        </>
-                      )}
-                    </Badge>
-                  )}
-                </div>
-                <EditorScrollArea className="flex-1 overflow-y-auto">
-                  <div className="p-4">
-                    {result ? (
-                      <div className="space-y-3">
-                        {result.error && (
-                          <div className="rounded-lg p-3 text-sm border bg-red-500/10 border-red-500/20">
-                            <div className="flex items-center gap-2 mb-2">
-                              <XCircle className="w-4 h-4 text-red-400" />
-                              <span className="font-medium text-red-400">
-                                Error
-                              </span>
-                            </div>
-                            <pre className="text-xs text-red-300 whitespace-pre-wrap break-words font-mono">
-                              {result.error}
-                            </pre>
-                          </div>
-                        )}
-                        {result.output && !result.error && (
-                          <div className="rounded-lg p-3 text-sm border bg-[#252526] border-[#3d3d3d]">
-                            <div className="text-xs text-gray-400 mb-2">
-                              Output:
-                            </div>
-                            <pre className="text-gray-200 whitespace-pre-wrap break-words font-mono text-xs">
-                              {result.output}
-                            </pre>
-                          </div>
-                        )}
-                        {result.testResults?.map((test, index) => (
-                          <div
-                            key={index}
-                            className={`rounded-lg p-3 text-sm border ${test.passed
-                              ? "bg-green-500/10 border-green-500/20"
-                              : "bg-red-500/10 border-red-500/20"
+              <ResizablePanelGroup direction="vertical" className="h-full">
+                {/* Code Editor with File Tabs */}
+                <ResizablePanel defaultSize={70} minSize={30}>
+                  <div className="h-full flex flex-col">
+                    {/* File Tabs (only shown for multi-file exercises) */}
+                    {Object.keys(files).length > 1 && (
+                      <div className="flex bg-[#252526] border-b border-[#3d3d3d] overflow-x-auto shrink-0">
+                        {Object.keys(files).map((fileName) => (
+                          <button
+                            key={fileName}
+                            onClick={() => handleFileChange(fileName)}
+                            className={`px-4 py-2 text-sm font-mono flex items-center gap-2 border-r border-[#3d3d3d] transition-colors ${activeFile === fileName
+                              ? "bg-[#1e1e1e] text-white border-t-2 border-t-primary"
+                              : "bg-[#2d2d2d] text-gray-400 hover:bg-[#3d3d3d] hover:text-gray-200"
                               }`}
                           >
-                            <div className="flex items-center gap-2 mb-2">
-                              {test.passed ? (
-                                <CheckCircle className="w-4 h-4 text-green-400" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-red-400" />
-                              )}
-                              <span className="font-medium text-gray-200">
-                                Test {index + 1}
-                              </span>
-                            </div>
-                            <div className="space-y-1 text-xs font-mono">
-                              {test.input && (
-                                <div className="text-gray-400">
-                                  <span className="text-gray-500">Input: </span>
-                                  <span className="text-gray-300">
-                                    {typeof test.input === "object"
-                                      ? JSON.stringify(test.input)
-                                      : test.input}
-                                  </span>
-                                </div>
-                              )}
-                              {test.expectedOutput && (
-                                <div className="text-gray-400">
-                                  <span className="text-gray-500">
-                                    Expected:{" "}
-                                  </span>
-                                  <span className="text-green-400">
-                                    {typeof test.expectedOutput === "object"
-                                      ? JSON.stringify(test.expectedOutput)
-                                      : test.expectedOutput}
-                                  </span>
-                                </div>
-                              )}
-                              {test.actualOutput && (
-                                <div className="text-gray-400">
-                                  <span className="text-gray-500">
-                                    Actual:{" "}
-                                  </span>
-                                  <span
-                                    className={
-                                      test.passed
-                                        ? "text-green-400"
-                                        : "text-red-400"
-                                    }
-                                  >
-                                    {typeof test.actualOutput === "object"
-                                      ? JSON.stringify(test.actualOutput)
-                                      : test.actualOutput}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                            <FileCode className="w-4 h-4" />
+                            {fileName}
+                          </button>
                         ))}
-                        {result.executionTime && (
-                          <div className="text-xs text-gray-500 pt-2">
-                            Execution time: {result.executionTime}s
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <Editor
+                        height="100%"
+                        language={getLanguage()}
+                        value={code}
+                        onChange={handleCodeChange}
+                        theme="vs-dark"
+                        options={{
+                          minimap: { enabled: false },
+                          fontSize: 14,
+                          lineNumbers: "on",
+                          scrollBeyondLastLine: false,
+                          automaticLayout: true,
+                          tabSize: 2,
+                          wordWrap: "on",
+                          padding: { top: 16 },
+                        }}
+                      />
+                    </div>
+                  </div>
+                </ResizablePanel>
+
+                <ResizableHandle className="h-[3px] bg-white/10 hover:bg-primary/60 transition-all resizer-glow cursor-row-resize" />
+
+                {/* Output Panel */}
+                <ResizablePanel defaultSize={60} minSize={15}>
+                  <div className="h-full flex flex-col bg-black/40 backdrop-blur-sm">
+                    <div className="px-4 py-2 border-b border-[#3d3d3d] flex items-center justify-between bg-[#252526] shrink-0">
+                      <span className="font-medium text-sm text-gray-300">
+                        Test Results
+                      </span>
+                      {result && (
+                        <Badge
+                          className={`text-xs ${result.passed
+                            ? "bg-green-500/20 text-green-400 border-green-500/30"
+                            : "bg-red-500/20 text-red-400 border-red-500/30"
+                            }`}
+                        >
+                          {result.passed ? (
+                            <>
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              All Tests Passed
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-3 h-3 mr-1" />
+                              Tests Failed
+                            </>
+                          )}
+                        </Badge>
+                      )}
+                    </div>
+                    <EditorScrollArea className="flex-1 overflow-y-auto">
+                      <div className="p-4">
+                        {result ? (
+                          <div className="space-y-3">
+                            {result.error && (
+                              <div className="rounded-lg p-3 text-sm border bg-red-500/10 border-red-500/20">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <XCircle className="w-4 h-4 text-red-400" />
+                                  <span className="font-medium text-red-400">
+                                    Error
+                                  </span>
+                                </div>
+                                <pre className="text-xs text-red-300 whitespace-pre-wrap break-words font-mono">
+                                  {result.error}
+                                </pre>
+                              </div>
+                            )}
+                            {result.output && !result.error && (
+                              <div className="rounded-lg p-3 text-sm border bg-[#252526] border-[#3d3d3d]">
+                                <div className="text-xs text-gray-400 mb-2">
+                                  Output:
+                                </div>
+                                <pre className="text-gray-200 whitespace-pre-wrap break-words font-mono text-xs">
+                                  {result.output}
+                                </pre>
+                              </div>
+                            )}
+                            {result.testResults?.map((test, index) => (
+                              <div
+                                key={index}
+                                className={`rounded-lg p-3 text-sm border ${test.passed
+                                  ? "bg-green-500/10 border-green-500/20"
+                                  : "bg-red-500/10 border-red-500/20"
+                                  }`}
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  {test.passed ? (
+                                    <CheckCircle className="w-4 h-4 text-green-400" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4 text-red-400" />
+                                  )}
+                                  <span className="font-medium text-gray-200">
+                                    Test {index + 1}
+                                  </span>
+                                </div>
+                                <div className="space-y-1 text-xs font-mono">
+                                  {test.input && (
+                                    <div className="text-gray-400">
+                                      <span className="text-gray-500">Input: </span>
+                                      <span className="text-gray-300">
+                                        {typeof test.input === "object"
+                                          ? JSON.stringify(test.input)
+                                          : test.input}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {test.expectedOutput && (
+                                    <div className="text-gray-400">
+                                      <span className="text-gray-500">
+                                        Expected:{" "}
+                                      </span>
+                                      <span className="text-green-400">
+                                        {typeof test.expectedOutput === "object"
+                                          ? JSON.stringify(test.expectedOutput)
+                                          : test.expectedOutput}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {test.actualOutput && (
+                                    <div className="text-gray-400">
+                                      <span className="text-gray-500">
+                                        Actual:{" "}
+                                      </span>
+                                      <span
+                                        className={
+                                          test.passed
+                                            ? "text-green-400"
+                                            : "text-red-400"
+                                        }
+                                      >
+                                        {typeof test.actualOutput === "object"
+                                          ? JSON.stringify(test.actualOutput)
+                                          : test.actualOutput}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                            {result.executionTime && (
+                              <div className="text-xs text-gray-500 pt-2">
+                                Execution time: {result.executionTime}s
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-32">
+                            <p className="text-gray-500 text-sm">
+                              Click "Run Tests" to see the output
+                            </p>
                           </div>
                         )}
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-32">
-                        <p className="text-gray-500 text-sm">
-                          Click "Run Tests" to see the output
-                        </p>
-                      </div>
-                    )}
+                    </EditorScrollArea>
                   </div>
-                </EditorScrollArea>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
