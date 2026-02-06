@@ -245,7 +245,7 @@ export const darkMarkdownComponents = {
     <h3 className="text-lg font-semibold mt-5 mb-2 text-white" {...props}>{children}</h3>
   ),
   p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="mb-4 leading-relaxed text-gray-300 break-words" {...props}>{children}</p>
+    <p className="mb-4 leading-relaxed text-gray-300 break-words max-w-full" {...props}>{children}</p>
   ),
   ul: ({ children, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300" {...props}>{children}</ul>
@@ -291,7 +291,7 @@ export const StyledMarkdown: React.FC<StyledMarkdownProps> = ({
     : children;
     
   return (
-    <div className={className}>
+    <div className={`instruction-flow ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={dark ? darkMarkdownComponents : markdownComponents}
