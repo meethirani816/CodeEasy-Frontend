@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { tracksApi } from "@/api/tracks";
 import { exercisesApi } from "@/api/exercises";
-import { progressApi } from "@/api/progress";
+import { progressApi, UserProgressItem } from "@/api/progress";
 import { Track, TrackConfig, ConceptConfig } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -286,6 +286,7 @@ const TrackDetail: React.FC = () => {
   const [hasJoined, setHasJoined] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
   const [error, setError] = useState<string | null>(null);
+  const [userProgress, setUserProgress] = useState<UserProgressItem[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -324,10 +325,10 @@ const TrackDetail: React.FC = () => {
           setTrack((prev) =>
             prev
               ? {
-                ...prev,
-                name: configData.language || prev.name,
-                description: configData.blurb || prev.description,
-              }
+                  ...prev,
+                  name: configData.language || prev.name,
+                  description: configData.blurb || prev.description,
+                }
               : prev,
           );
         }
@@ -358,10 +359,15 @@ const TrackDetail: React.FC = () => {
         if (isAuthenticated) {
           try {
             const progress = await progressApi.getMyProgress();
+            setUserProgress(progress);
             setHasJoined(progressApi.hasJoinedTrack(progress, slug));
           } catch {
+            setUserProgress([]);
             setHasJoined(false);
           }
+        } else {
+          setUserProgress([]);
+          setHasJoined(false);
         }
       } catch {
         setTrack(null);
@@ -385,6 +391,8 @@ const TrackDetail: React.FC = () => {
     try {
       const success = await progressApi.joinTrack(slug);
       if (success) {
+        const progress = await progressApi.getMyProgress();
+        setUserProgress(progress);
         setHasJoined(true);
         toast({
           title: "Track joined!",
@@ -444,7 +452,7 @@ const TrackDetail: React.FC = () => {
 
   const exerciseCount =
     (trackConfig?.exercises?.concept?.length || 0) +
-    (trackConfig?.exercises?.practice?.length || 0) ||
+      (trackConfig?.exercises?.practice?.length || 0) ||
     track.exerciseCount ||
     20;
 
@@ -531,11 +539,22 @@ const TrackDetail: React.FC = () => {
             </div>
             {/* Right CTA */}
             <Button
-              onClick={() => navigate('/signup')}
+              onClick={
+                hasJoined
+                  ? () => navigate(`/tracks/${slug}/exercises`)
+                  : handleJoinTrack
+              }
+              disabled={isJoining}
               className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-4 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Join Track
+              {isJoining ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : hasJoined ? (
+                <CheckCircle className="w-4 h-4 mr-1" />
+              ) : (
+                <Plus className="w-4 h-4 mr-1" />
+              )}
+              {hasJoined ? "Continue" : "Join Track"}
             </Button>
           </div>
         </div>
@@ -672,8 +691,6 @@ const TrackDetail: React.FC = () => {
                               />
                             </div>
                           </div>
-
-
                         </div>
                       </div>
                     </div>
@@ -732,34 +749,50 @@ const TrackDetail: React.FC = () => {
 
                 {concepts.length > 0 ? (
                   <div className="space-y-3">
-                    {concepts.map((concept) => (
-                      <Link
-                        key={concept.slug}
-                        to={`/tracks/${slug}/concepts/${concept.slug}`}
-                        className="block bg-background border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                            <Lightbulb className="w-6 h-6 text-primary" />
+                    {concepts.map((concept) => {
+                      const isConceptCompleted = !!slug
+                        ? progressApi.isExerciseCompleted(
+                            userProgress,
+                            slug,
+                            concept.slug,
+                          )
+                        : false;
+
+                      return (
+                        <Link
+                          key={concept.slug}
+                          to={`/tracks/${slug}/concepts/${concept.slug}`}
+                          className="block bg-background border border-border rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                              <Lightbulb className="w-6 h-6 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                                {concept.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                Learn about {concept.name.toLowerCase()} in{" "}
+                                {trackName}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {isConceptCompleted && (
+                                <span className="text-xs bg-green-500/10 text-green-600 px-3 py-1 rounded-full font-medium inline-flex items-center gap-1">
+                                  <CheckCircle className="w-4 h-4" />
+                                  Completed
+                                </span>
+                              )}
+                              <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
+                                Concept
+                              </span>
+                              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                              {concept.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-0.5">
-                              Learn about {concept.name.toLowerCase()} in{" "}
-                              {trackName}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
-                              Concept
-                            </span>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      );
+                    })}
                   </div>
                 ) : conceptExercises.length > 0 ? (
                   <div className="space-y-3">
@@ -858,7 +891,7 @@ const TrackDetail: React.FC = () => {
                 </div>
 
                 {trackConfig?.exercises?.practice &&
-                  trackConfig.exercises.practice.length > 0 ? (
+                trackConfig.exercises.practice.length > 0 ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {trackConfig.exercises.practice
                       .slice(0, 9)
@@ -876,12 +909,13 @@ const TrackDetail: React.FC = () => {
                               </h3>
                               <div className="flex items-center gap-2 mt-2">
                                 <span
-                                  className={`text-xs px-2 py-0.5 rounded-full ${exercise.difficulty <= 3
+                                  className={`text-xs px-2 py-0.5 rounded-full ${
+                                    exercise.difficulty <= 3
                                       ? "bg-green-500/10 text-green-600"
                                       : exercise.difficulty <= 6
                                         ? "bg-yellow-500/10 text-yellow-600"
                                         : "bg-red-500/10 text-red-600"
-                                    }`}
+                                  }`}
                                 >
                                   {exercise.difficulty <= 3
                                     ? "Easy"
