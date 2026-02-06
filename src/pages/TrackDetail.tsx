@@ -324,10 +324,10 @@ const TrackDetail: React.FC = () => {
           setTrack((prev) =>
             prev
               ? {
-                  ...prev,
-                  name: configData.language || prev.name,
-                  description: configData.blurb || prev.description,
-                }
+                ...prev,
+                name: configData.language || prev.name,
+                description: configData.blurb || prev.description,
+              }
               : prev,
           );
         }
@@ -444,7 +444,7 @@ const TrackDetail: React.FC = () => {
 
   const exerciseCount =
     (trackConfig?.exercises?.concept?.length || 0) +
-      (trackConfig?.exercises?.practice?.length || 0) ||
+    (trackConfig?.exercises?.practice?.length || 0) ||
     track.exerciseCount ||
     20;
 
@@ -510,7 +510,7 @@ const TrackDetail: React.FC = () => {
             <div className="flex items-center gap-4">
               <TrackIcon slug={track.slug} size="xl" showImage />
               <div>
-                <h1 className="text-2xl md:text-3xl font-serif tracking-tight text-foreground">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
                   {trackName}
                 </h1>
                 <div className="flex items-center gap-5 text-sm text-muted-foreground mt-2 flex-wrap">
@@ -529,6 +529,14 @@ const TrackDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+            {/* Right CTA */}
+            <Button
+              onClick={() => navigate('/signup')}
+              className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-4 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Join Track
+            </Button>
           </div>
         </div>
 
@@ -560,7 +568,7 @@ const TrackDetail: React.FC = () => {
 
             <TabsContent value="about" className="mt-0">
               <section className="flex-1">
-               <div className="bg-gradient-to-b from-muted/30 to-background border-b border-border">
+                <div className="bg-gradient-to-b from-muted/30 to-background border-b border-border">
                   <div
                     className="relative"
                     style={{
@@ -665,7 +673,7 @@ const TrackDetail: React.FC = () => {
                             </div>
                           </div>
 
-                          
+
                         </div>
                       </div>
                     </div>
@@ -850,7 +858,7 @@ const TrackDetail: React.FC = () => {
                 </div>
 
                 {trackConfig?.exercises?.practice &&
-                trackConfig.exercises.practice.length > 0 ? (
+                  trackConfig.exercises.practice.length > 0 ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {trackConfig.exercises.practice
                       .slice(0, 9)
@@ -868,13 +876,12 @@ const TrackDetail: React.FC = () => {
                               </h3>
                               <div className="flex items-center gap-2 mt-2">
                                 <span
-                                  className={`text-xs px-2 py-0.5 rounded-full ${
-                                    exercise.difficulty <= 3
+                                  className={`text-xs px-2 py-0.5 rounded-full ${exercise.difficulty <= 3
                                       ? "bg-green-500/10 text-green-600"
                                       : exercise.difficulty <= 6
                                         ? "bg-yellow-500/10 text-yellow-600"
                                         : "bg-red-500/10 text-red-600"
-                                  }`}
+                                    }`}
                                 >
                                   {exercise.difficulty <= 3
                                     ? "Easy"
