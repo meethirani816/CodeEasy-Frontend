@@ -6,6 +6,7 @@ import { exercisesApi } from "@/api/exercises";
 import { Exercise } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
 import { Loader2, LayoutGrid, ExternalLink } from "lucide-react";
 import {
   Breadcrumb,
@@ -215,7 +216,7 @@ const ExerciseDetail: React.FC = () => {
           <ExerciseIcon slug={exercise.slug} size="lg" className="w-20 h-20" />
 
           <div>
-            <h1 className="text-3xl font-serif mb-2">
+            <h1 className="text-3xl font-bold mb-2">
               {formatExerciseTitle(exercise.title)}
             </h1>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">

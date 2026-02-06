@@ -260,7 +260,7 @@ const Exercises: React.FC = () => {
               <TrackIcon slug={slug || ''} size="xl" showImage />
 
               <div>
-                <h1 className="text-3xl font-serif tracking-tight">
+                <h1 className="text-3xl font-extrabold tracking-tight">
                   {track?.name}
                 </h1>
 
@@ -278,15 +278,13 @@ const Exercises: React.FC = () => {
             </div>
 
             {/* Right CTA */}
-            {!isAuthenticated && (
               <Button
                 onClick={() => navigate('/signup')}
-                className="bg-primary hover:bg-primary/90 px-6 rounded-full shadow-md"
+                className="bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 text-white px-4 py-4 text-lg font-medium rounded-full shadow-xl shadow-black/30 hover:scale-[1.03] transition"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Join Track
               </Button>
-            )}
           </div>
         </div>
 

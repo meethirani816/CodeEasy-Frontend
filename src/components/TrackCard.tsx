@@ -49,7 +49,7 @@ const TrackCard: React.FC<TrackCardProps> = ({ track }) => {
 
         <div className="flex-1 min-w-0">
           {/* Track Name */}
-          <h3 className="font-serif text-lg tracking-tight text-foreground group-hover:text-primary transition-colors">
+          <h3 className="font-extrabold text-lg tracking-tight text-foreground group-hover:text-primary transition-colors">
             {trackName}
           </h3>
 
