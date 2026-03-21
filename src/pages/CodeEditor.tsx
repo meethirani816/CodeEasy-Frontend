@@ -783,8 +783,8 @@ solution() ->
         <ResizablePanel defaultSize={35} minSize={25}>
           <div className="h-full min-h-0 overflow-hidden p-3 flex flex-col">
             <div className="h-full glass glass-elevated rounded-xl">
-              {/* SINGLE scroll container */}
-              <EditorScrollArea className="h-full">
+              {/* SINGLE scroll container with className for horizontal scroll */}
+              <EditorScrollArea className="h-full instruction-panel">
                 <div className="p-6 space-y-8">
                   {/* Introduction */}
                   {processedIntroduction?.trim() && (
@@ -799,7 +799,7 @@ solution() ->
                         </div>
                       </div>
 
-                      <div className="instruction-flow">
+                      <div className="instruction-flow prose-container">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={darkMarkdownComponents}
@@ -823,7 +823,7 @@ solution() ->
                         </div>
                       </div>
 
-                      <div className="instruction-flow">
+                      <div className="instruction-flow prose-container">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={darkMarkdownComponents}
@@ -883,6 +883,7 @@ solution() ->
                     </section>
                   )}
                 </div>
+                
               </EditorScrollArea>
             </div>
           </div>
@@ -895,10 +896,10 @@ solution() ->
           <div className="h-full p-3 flex flex-col">
             <div className="h-full bg-[#1e1e1e] rounded-lg overflow-hidden border border-white/5">
 
-              <ResizablePanelGroup direction="vertical" className="h-full">
+              <ResizablePanelGroup direction="vertical" className="h-full min-h-0">
                 {/* Code Editor with File Tabs */}
-                <ResizablePanel defaultSize={70} minSize={30}>
-                  <div className="h-full flex flex-col">
+                <ResizablePanel defaultSize={65} minSize={35}>
+                  <div className="h-full min-h-0 flex flex-col">
                     {/* File Tabs (only shown for multi-file exercises) */}
                     {Object.keys(files).length > 1 && (
                       <div className="flex bg-[#252526] border-b border-[#3d3d3d] overflow-x-auto shrink-0">
@@ -917,7 +918,7 @@ solution() ->
                         ))}
                       </div>
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 min-h-0 overflow-hidden">
                       <Editor
                         height="100%"
                         language={getLanguage()}
@@ -930,7 +931,6 @@ solution() ->
                           lineNumbers: "on",
                           scrollBeyondLastLine: false,
                           automaticLayout: true,
-                          tabSize: 2,
                           wordWrap: "on",
                           padding: { top: 16 },
                         }}
@@ -942,7 +942,7 @@ solution() ->
                 <ResizableHandle className="h-[3px] bg-white/10 hover:bg-primary/60 transition-all resizer-glow cursor-row-resize" />
 
                 {/* Output Panel */}
-                <ResizablePanel defaultSize={60} minSize={15}>
+                <ResizablePanel defaultSize={35} minSize={20} className="min-h-0">
                   <div className="h-full flex flex-col bg-black/40 backdrop-blur-sm">
                     <div className="px-4 py-2 border-b border-[#3d3d3d] flex items-center justify-between bg-[#252526] shrink-0">
                       <span className="font-medium text-sm text-gray-300">
@@ -969,7 +969,7 @@ solution() ->
                         </Badge>
                       )}
                     </div>
-                    <EditorScrollArea className="flex-1 overflow-y-auto">
+                    <EditorScrollArea className="flex-1 min-h-0 overflow-y-auto">
                       <div className="p-4">
                         {result ? (
                           <div className="space-y-3">

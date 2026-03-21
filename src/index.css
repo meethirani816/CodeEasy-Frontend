@@ -241,6 +241,7 @@
 /* Tables (very important for Python & theory tracks) */
 .prose-container table {
   display: block;
+  width: max-content;
   max-width: 100%;
   overflow-x: auto;
   border-collapse: collapse;
@@ -282,6 +283,7 @@
   box-shadow: 0 0 0 1px rgba(99,102,241,.4),
               0 0 12px rgba(99,102,241,.4);
 }
+
 /* =========================================
    Instruction Flow (FINAL – SINGLE SOURCE)
    ========================================= */
@@ -292,6 +294,8 @@
   line-height: 1.7;
   overflow-wrap: anywhere;
   word-break: normal;
+  /* ENABLE HORIZONTAL SCROLLING */
+  overflow-x: auto !important;
 }
 
 /* Paragraphs & list items reflow on resize */
@@ -312,8 +316,28 @@
 }
 
 /* Code & tables scroll instead of wrapping */
-.instruction-flow pre,
-.instruction-flow table {
-  max-width: 100%;
+.instruction-flow pre {
   overflow-x: auto;
+  max-width: 100%;
+}
+
+.instruction-flow table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+/* =========================================
+   HORIZONTAL SCROLLING FOR LEFT PANEL
+   ========================================= */
+
+/* Enable horizontal scrolling for ScrollArea viewport */
+[data-radix-scroll-area-viewport] {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure the EditorScrollArea allows horizontal scroll */
+.instruction-panel [data-radix-scroll-area-viewport] {
+  overflow-x: auto !important;
 }
